@@ -81,9 +81,34 @@ Contains global styling assets:
 
 #### Layout and Providers
 The root layout (`src/app/layout.tsx`) includes several important providers and configurations:
+- `AuthProvider` for Firebase authentication and user management
 - `TooltipProvider` from shadcn/ui wrapping the entire application to enable tooltip functionality
 - Inter font configuration for consistent typography
 - Responsive layout structure with proper overflow handling
+
+#### Authentication
+The application uses Firebase Authentication with the following features:
+- Multiple authentication methods:
+  - Email/password registration and login
+  - Google OAuth sign-in integration
+- Secure authentication state management through React Context
+- Persistent user sessions
+- Protected routes and content
+- User profile display in navigation
+- Form validation and error handling
+- Responsive authentication pages
+
+Components:
+- `AuthContext.tsx` - Context provider for authentication state and methods
+- `Header.tsx` - Integrated login/logout functionality with dynamic user display
+- Authentication Pages:
+  - `/login/page.tsx` - Login page with email and Google sign-in options
+  - `/register/page.tsx` - Registration page with:
+    - Email/password registration
+    - Password confirmation
+    - Validation rules (min length, matching passwords)
+    - Google sign-up option
+    - Error handling and display
 
 ## Calculator Features
 

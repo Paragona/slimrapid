@@ -3,8 +3,8 @@ import { MapPin, Facebook, Twitter, Instagram } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-12 pl-16 md:pl-48 lg:pl-64">
-      <div className="container mx-auto px-8">
+    <footer className="bg-gray-800 text-white py-12 w-[calc(100%-4rem)] md:w-[calc(100%-12rem)] lg:w-[calc(100%-16rem)] ml-16 md:ml-48 lg:ml-64">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link href="/" className="flex items-center space-x-2 mb-4">

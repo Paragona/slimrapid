@@ -1,11 +1,9 @@
-// Import the functions you need from the SDKs you need
+"use client"
+
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC2_T0xj0nwr8Hqcj7DMQDP0ivbCCpTGVw",
   authDomain: "carbon-sunup-443223-k4.firebaseapp.com",
@@ -18,4 +16,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app); 
+
+// Initialize Analytics only on client side
+const getFirebaseAnalytics = async () => {
+  if (typeof window !== 'undefined') {
+    const { getAnalytics } = await import('firebase/analytics');
+    return getAnalytics(app);
+  }
+  return null;
+};
+
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+export { auth, googleProvider, getFirebaseAnalytics };
+export default app;
