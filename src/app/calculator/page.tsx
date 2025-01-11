@@ -1,13 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-
+import { useState, useEffect, useCallback } from 'react';
+import { Truck } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -15,33 +9,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import MapComponent from '@/components/MapComponent';
-import { format } from 'date-fns';
+import { CalculatorForm } from '@/components/calculator/CalculatorForm';
+import { CostBreakdown } from '@/components/calculator/CostBreakdown';
+import { RouteMap } from '@/components/calculator/RouteMap';
+import { MoveDetails, CostBreakdownType } from '@/types/calculator';
 
-interface MoveDetails {
-  moveSize: string;
-  floorNumber: {
-    origin: number;
-    destination: number;
-  };
-  hasElevator: {
-    origin: boolean;
-    destination: boolean;
-  };
-  parkingDistance: {
-    origin: number;
-    destination: number;
-  };
-  moveDate: Date;
+interface MapboxFeature {
+  place_name: string;
+  context?: Array<{
+    id: string;
+    short_code?: string;
+  }>;
 }
 
 export default function CalculatorPage() {
   const [origin, setOrigin] = useState('');
   const [destination, setDestination] = useState('');
-  const [distance, setDistance] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showMap, setShowMap] = useState(false);
+  const [originCoordinates, setOriginCoordinates] = useState<[number, number]>();
+  const [destinationCoordinates, setDestinationCoordinates] = useState<[number, number]>();
   const [moveDetails, setMoveDetails] = useState<MoveDetails>({
     moveSize: '1bed',
     floorNumber: {
@@ -58,26 +45,67 @@ export default function CalculatorPage() {
     },
     moveDate: new Date()
   });
-  const [cost, setCost] = useState<number | null>(null);
+  const [costBreakdown, setCostBreakdown] = useState<CostBreakdownType | null>(null);
+  const [addressSuggestions, setAddressSuggestions] = useState({
+    origin: [] as string[],
+    destination: [] as string[]
+  });
 
-  const calculateCost = (distanceInKm: number) => {
-    // Base rates per move size
+  const getBaseRate = (moveSize: string, distance: number) => {
     const baseRates = {
-      'studio': 500,
-      '1bed': 700,
-      '2bed': 1000,
-      '3bed': 1500,
-      '4bed': 2000
+      'studio': {min: 500, max: 870},
+      '1bed': {min: 700, max: 1900},
+      '2bed': {min: 1000, max: 3200},
+      '3bed': {min: 1500, max: 5000},
+      '4bed': {min: 2000, max: 6000}
     };
 
+    return distance < 100 ? 
+      baseRates[moveSize as keyof typeof baseRates].min : 
+      baseRates[moveSize as keyof typeof baseRates].max;
+  };
+
+  const getSeasonalMultiplier = (date: Date) => {
+    const month = date.getMonth();
+    const day = date.getDay();
+    
+    // Peak summer season (June-August)
+    const isSummerPeak = month >= 5 && month <= 7;
+    // Secondary peak (April-May, September)
+    const isSecondaryPeak = month === 3 || month === 4 || month === 8;
+    // Weekend
+    const isWeekend = day === 0 || day === 6;
+    
+    let multiplier = 1;
+    if (isSummerPeak) multiplier *= 1.15;
+    if (isSecondaryPeak) multiplier *= 1.1;
+    if (isWeekend) multiplier *= 1.15;
+    
+    return multiplier;
+  };
+
+  const getDistanceCost = (distance: number) => {
+    if (distance <= 50) return distance * 2;
+    if (distance <= 100) return 100 + (distance - 50) * 1.8;
+    if (distance <= 500) return 190 + (distance - 100) * 1.5;
+    return 790 + (distance - 500) * 1.2;
+  };
+
+  const calculateCost = useCallback((distanceInKm: number = 0) => {
     // Convert distance to miles
     const distanceInMiles = distanceInKm * 0.621371;
     
-    // Base cost calculation
-    let totalCost = baseRates[moveDetails.moveSize as keyof typeof baseRates];
+    // Get base rate based on move size and distance
+    const baseRate = getBaseRate(moveDetails.moveSize, distanceInMiles);
     
-    // Add distance cost ($2 per mile)
-    totalCost += distanceInMiles * 2;
+    // Calculate distance cost using bracketed pricing
+    const distanceCost = getDistanceCost(distanceInMiles);
+    
+    // Get seasonal and timing multiplier
+    const seasonalMultiplier = getSeasonalMultiplier(moveDetails.moveDate);
+    
+    // Initial cost calculation
+    let totalCost = (baseRate + distanceCost);
     
     // Add floor cost ($50 per floor without elevator)
     if (!moveDetails.hasElevator.origin) {
@@ -90,19 +118,45 @@ export default function CalculatorPage() {
     // Add parking distance cost ($1 per foot)
     totalCost += (moveDetails.parkingDistance.origin + moveDetails.parkingDistance.destination);
     
-    // Weekend surcharge (15%)
-    const moveDay = moveDetails.moveDate.getDay();
-    if (moveDay === 0 || moveDay === 6) {
-      totalCost *= 1.15;
-    }
-    
-    // Peak season surcharge (May-September, 10%)
-    const moveMonth = moveDetails.moveDate.getMonth();
-    if (moveMonth >= 4 && moveMonth <= 8) {
-      totalCost *= 1.1;
-    }
+    // Apply seasonal multiplier to base costs
+    totalCost *= seasonalMultiplier;
 
-    return Math.round(totalCost);
+    const breakdown: CostBreakdownType = {
+      baseCost: baseRate,
+      distanceCost: Math.round(distanceCost),
+      floorCost: (!moveDetails.hasElevator.origin ? moveDetails.floorNumber.origin * 50 : 0) +
+                 (!moveDetails.hasElevator.destination ? moveDetails.floorNumber.destination * 50 : 0),
+      parkingCost: moveDetails.parkingDistance.origin + moveDetails.parkingDistance.destination,
+      weekendSurcharge: 0,
+      seasonalSurcharge: 0,
+      distanceKm: distanceInKm,
+      total: Math.round(totalCost + 
+             (!moveDetails.hasElevator.origin ? moveDetails.floorNumber.origin * 50 : 0) +
+             (!moveDetails.hasElevator.destination ? moveDetails.floorNumber.destination * 50 : 0) +
+             moveDetails.parkingDistance.origin + 
+             moveDetails.parkingDistance.destination)
+    };
+
+    setCostBreakdown(breakdown);
+    return breakdown.total;
+  }, [moveDetails]);
+
+  const getCoordinates = async (address: string): Promise<[number, number] | null> => {
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`
+      );
+      const data = await response.json();
+      
+      if (data.features && data.features.length > 0) {
+        const [lng, lat] = data.features[0].center;
+        return [lng, lat];
+      }
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
   };
 
   const calculateDistance = async () => {
@@ -115,32 +169,15 @@ export default function CalculatorPage() {
     setError(null);
 
     try {
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-        version: 'weekly',
-        libraries: ['places', 'routes']
-      });
+      const originCoords = await getCoordinates(origin);
+      const destinationCoords = await getCoordinates(destination);
 
-      await loader.load();
-      const service = new google.maps.DistanceMatrixService();
-
-      const response = await service.getDistanceMatrix({
-        origins: [origin],
-        destinations: [destination],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.METRIC
-      });
-
-      if (response.rows[0].elements[0].status === 'OK') {
-        const distanceValue = response.rows[0].elements[0].distance.value / 1000; // Convert to km
-        const distanceText = response.rows[0].elements[0].distance.text;
-        const durationText = response.rows[0].elements[0].duration.text;
-        setDistance(`Distance: ${distanceText} (approximately ${durationText} by car)`);
-        setCost(calculateCost(distanceValue));
-        setShowMap(true);
-      } else {
-        setError('Could not calculate distance. Please check your inputs.');
+      if (!originCoords || !destinationCoords) {
+        throw new Error('Could not find coordinates for one or both addresses');
       }
+
+      setOriginCoordinates(originCoords);
+      setDestinationCoordinates(destinationCoords);
     } catch (err) {
       setError('An error occurred while calculating the distance');
       console.error(err);
@@ -149,184 +186,89 @@ export default function CalculatorPage() {
     }
   };
 
+  // Debounced address search
+  useEffect(() => {
+    const searchAddress = async (address: string, type: 'origin' | 'destination') => {
+      if (address.length < 3) {
+        setAddressSuggestions(prev => ({ ...prev, [type]: [] }));
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?` +
+          `access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}` +
+          `&types=address` +
+          `&country=us,ca` // Restrict to USA and Canada
+        );
+        const data = await response.json();
+        const suggestions = data.features
+          .filter((f: MapboxFeature) => f.context?.some((c) => 
+            c.id.startsWith('country') && (c.short_code === 'us' || c.short_code === 'ca')
+          ))
+          .map((f: MapboxFeature) => f.place_name);
+        setAddressSuggestions(prev => ({ ...prev, [type]: suggestions }));
+      } catch (error) {
+        console.error('Error fetching address suggestions:', error);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (origin) searchAddress(origin, 'origin');
+      if (destination) searchAddress(destination, 'destination');
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [origin, destination]);
+
+  // Calculate cost whenever move details change
+  useEffect(() => {
+    if (moveDetails) {
+      calculateCost();
+    }
+  }, [moveDetails, calculateCost]);
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="w-full max-w-4xl mx-auto">
+    <div className="container mx-auto px-4 py-8 min-h-screen overflow-auto">
+      <Card className="w-full max-w-4xl mx-auto mb-8">
         <CardHeader>
-          <CardTitle>Moving Cost Calculator</CardTitle>
+          <div className="flex items-center gap-2">
+            <Truck className="w-6 h-6 text-blue-500" />
+            <CardTitle>Moving Cost Calculator</CardTitle>
+          </div>
           <CardDescription>
             Calculate the estimated cost of your move based on distance and additional factors
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="origin">Origin Address</Label>
-                <Input
-                  id="origin"
-                  placeholder="Enter origin address"
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="destination">Destination Address</Label>
-                <Input
-                  id="destination"
-                  placeholder="Enter destination address"
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                />
-              </div>
-            </div>
+          <div className="grid gap-6 relative">
+            <CalculatorForm
+              moveDetails={moveDetails}
+              onMoveDetailsChange={setMoveDetails}
+              origin={origin}
+              destination={destination}
+              onOriginChange={setOrigin}
+              onDestinationChange={setDestination}
+              onCalculate={calculateDistance}
+              loading={loading}
+              error={error}
+              addressSuggestions={addressSuggestions}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Move Size</Label>
-                <Select
-                  value={moveDetails.moveSize}
-                  onValueChange={(value) => setMoveDetails({...moveDetails, moveSize: value})}
-                >
-                  <option value="studio">Studio</option>
-                  <option value="1bed">1 Bedroom</option>
-                  <option value="2bed">2 Bedrooms</option>
-                  <option value="3bed">3 Bedrooms</option>
-                  <option value="4bed">4+ Bedrooms</option>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Move Date</Label>
-                <Calendar
-                  mode="single"
-                  selected={moveDetails.moveDate}
-                  onSelect={(date) => date && setMoveDetails({...moveDetails, moveDate: date})}
-                  className="rounded-md border"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Origin Details</Label>
-                <div className="grid gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Floor number"
-                    value={moveDetails.floorNumber.origin}
-                    onChange={(e) => setMoveDetails({
-                      ...moveDetails,
-                      floorNumber: {
-                        ...moveDetails.floorNumber,
-                        origin: parseInt(e.target.value)
-                      }
-                    })}
-                  />
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={moveDetails.hasElevator.origin}
-                      onChange={(e) => setMoveDetails({
-                        ...moveDetails,
-                        hasElevator: {
-                          ...moveDetails.hasElevator,
-                          origin: e.target.checked
-                        }
-                      })}
-                    />
-                    <span>Has Elevator</span>
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Parking distance (feet)"
-                    value={moveDetails.parkingDistance.origin}
-                    onChange={(e) => setMoveDetails({
-                      ...moveDetails,
-                      parkingDistance: {
-                        ...moveDetails.parkingDistance,
-                        origin: parseInt(e.target.value)
-                      }
-                    })}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Destination Details</Label>
-                <div className="grid gap-2">
-                  <Input
-                    type="number"
-                    placeholder="Floor number"
-                    value={moveDetails.floorNumber.destination}
-                    onChange={(e) => setMoveDetails({
-                      ...moveDetails,
-                      floorNumber: {
-                        ...moveDetails.floorNumber,
-                        destination: parseInt(e.target.value)
-                      }
-                    })}
-                  />
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={moveDetails.hasElevator.destination}
-                      onChange={(e) => setMoveDetails({
-                        ...moveDetails,
-                        hasElevator: {
-                          ...moveDetails.hasElevator,
-                          destination: e.target.checked
-                        }
-                      })}
-                    />
-                    <span>Has Elevator</span>
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Parking distance (feet)"
-                    value={moveDetails.parkingDistance.destination}
-                    onChange={(e) => setMoveDetails({
-                      ...moveDetails,
-                      parkingDistance: {
-                        ...moveDetails.parkingDistance,
-                        destination: parseInt(e.target.value)
-                      }
-                    })}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Button
-              onClick={calculateDistance}
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? 'Calculating...' : 'Calculate Cost'}
-            </Button>
-
-            {error && (
-              <div className="text-red-500 text-center">{error}</div>
+            {costBreakdown && (
+              <CostBreakdown 
+                costBreakdown={costBreakdown}
+                origin={origin}
+                destination={destination}
+              />
             )}
 
-            {distance && (
-              <div className="text-center space-y-2">
-                <p className="text-lg">{distance}</p>
-                {cost && (
-                  <p className="text-2xl font-bold">
-                    Estimated Cost: ${cost.toLocaleString()}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {showMap && (
-              <div className="h-[400px] w-full rounded-lg overflow-hidden">
-                <MapComponent
-                  center={{ lat: 0, lng: 0 }}
-                  zoom={2}
-                />
-              </div>
+            {originCoordinates && destinationCoordinates && (
+              <RouteMap
+                originCoordinates={originCoordinates}
+                destinationCoordinates={destinationCoordinates}
+                onRouteCalculated={calculateCost}
+              />
             )}
           </div>
         </CardContent>

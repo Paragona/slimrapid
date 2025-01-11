@@ -19,9 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background antialiased flex flex-col pt-16", inter.className)}>
+      <body className={cn("min-h-screen bg-background antialiased flex flex-col pt-16 overflow-x-hidden", inter.className)}>
         <Header />
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
         <Footer />
