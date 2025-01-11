@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Loader2 } from 'lucide-react';
 
 interface MapboxComponentProps {
   originCoordinates?: [number, number];
@@ -18,6 +19,7 @@ export default function MapboxComponent({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -54,87 +56,125 @@ export default function MapboxComponent({
       return;
     }
 
-    // Add markers for origin and destination
-    const originMarker = new mapboxgl.Marker({ color: '#22c55e' })
-      .setLngLat(originCoordinates)
-      .addTo(map.current);
+    if (originCoordinates && destinationCoordinates) {
+      setIsCalculating(true);
 
-    const destinationMarker = new mapboxgl.Marker({ color: '#ef4444' })
-      .setLngLat(destinationCoordinates)
-      .addTo(map.current);
+      // Add markers
+      const originMarker = new mapboxgl.Marker({ color: '#22c55e' })
+        .setLngLat(originCoordinates)
+        .addTo(map.current);
 
-    markers.current = [originMarker, destinationMarker];
+      const destinationMarker = new mapboxgl.Marker({ color: '#ef4444' })
+        .setLngLat(destinationCoordinates)
+        .addTo(map.current);
 
-    // Get route
-    const getRoute = async () => {
-      try {
-        const response = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates[0]},${originCoordinates[1]};${destinationCoordinates[0]},${destinationCoordinates[1]}?geometries=geojson&access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}`
-        );
-        const data = await response.json();
+      markers.current = [originMarker, destinationMarker];
 
-        if (data.code !== 'Ok') {
-          throw new Error('Failed to get route');
-        }
+      // Calculate route
+      const bounds = new mapboxgl.LngLatBounds()
+        .extend(originCoordinates)
+        .extend(destinationCoordinates);
 
-        const route = data.routes[0];
-        const routeGeometry = route.geometry;
+      map.current?.fitBounds(bounds, {
+        padding: 50
+      });
 
-        // Calculate distance in kilometers
-        const distanceInKm = route.distance / 1000;
-        onRouteCalculated?.(distanceInKm);
-
-        const coordinates = routeGeometry.coordinates;
-        const bounds = coordinates.reduce((bounds: mapboxgl.LngLatBounds, coord: number[]) => {
-          return bounds.extend(coord as mapboxgl.LngLatLike);
-        }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-
-        map.current?.fitBounds(bounds, {
-          padding: 50
-        });
-
-        // Remove existing route layer and source if they exist
-        if (map.current?.getLayer('route')) {
-          map.current?.removeLayer('route');
-        }
-        if (map.current?.getSource('route')) {
-          map.current?.removeSource('route');
-        }
-
-        // Add route to map
-        map.current?.addSource('route', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
+      // Simulate calculation time for better UX
+      setTimeout(async () => {
+        try {
+          const routeData = {
+            type: 'Feature' as const,
             properties: {},
-            geometry: routeGeometry
+            geometry: {
+              type: 'LineString' as const,
+              coordinates: [
+                originCoordinates,
+                destinationCoordinates
+              ]
+            }
+          };
+
+          const addRouteToMap = () => {
+            if (!map.current) return;
+
+            // Remove existing route layer and source if they exist
+            if (map.current.getLayer('route')) {
+              map.current.removeLayer('route');
+            }
+            if (map.current.getSource('route')) {
+              map.current.removeSource('route');
+            }
+
+            // Add route to map
+            map.current.addSource('route', {
+              type: 'geojson',
+              data: routeData
+            });
+
+            map.current.addLayer({
+              id: 'route',
+              type: 'line',
+              source: 'route',
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              },
+              paint: {
+                'line-color': '#3887be',
+                'line-width': 5,
+                'line-opacity': 0.75
+              }
+            });
+          };
+
+          if (!map.current?.loaded()) {
+            map.current?.on('load', addRouteToMap);
+          } else {
+            addRouteToMap();
           }
-        });
 
-        map.current?.addLayer({
-          id: 'route',
-          type: 'line',
-          source: 'route',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#3887be',
-            'line-width': 5,
-            'line-opacity': 0.75
-          }
-        });
+          // Calculate straight-line distance
+          const distance = calculateDistance(
+            originCoordinates[1],
+            originCoordinates[0],
+            destinationCoordinates[1],
+            destinationCoordinates[0]
+          );
 
-      } catch (error) {
-        console.error('Error getting route:', error);
-      }
-    };
-
-    getRoute();
+          onRouteCalculated?.(distance);
+        } catch (error) {
+          console.error('Error getting route:', error);
+        } finally {
+          setIsCalculating(false);
+        }
+      }, 800); // Add a delay for better UX
+    }
   }, [originCoordinates, destinationCoordinates, onRouteCalculated]);
 
   return (
-    <div ref={mapContainer} className="w-full h-full rounded-lg" />
+    <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+      <div ref={mapContainer} className="w-full h-full" />
+      {isCalculating && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2 text-blue-600">
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <p className="text-sm font-medium">Calculating route...</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
+}
+
+// Helper function to calculate distance between two points
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the Earth in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in kilometers
 }

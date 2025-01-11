@@ -33,7 +33,23 @@ Houses all React components, divided into feature components, calculator compone
 Reusable UI components library:
 - `address-input.tsx` - Enhanced address input with auto-complete suggestions
 - `button.tsx` - Button component
-- `calendar.tsx` - Calendar/date picker component
+- `calendar.tsx` - Calendar/date picker component:
+  - Uses react-calendar for core functionality
+  - Custom styling to match design system
+  - English localization with:
+    - 2-letter weekday abbreviations (Su, Mo, Tu)
+    - Full month names
+    - US date formatting
+  - Features:
+    - Date selection with disabled past dates
+    - Modern hover and active states
+    - Compact grid layout
+    - Responsive design
+  - Styling:
+    - Custom CSS in `/src/styles/calendar.css`
+    - Tailwind integration for container
+    - Consistent typography and spacing
+    - Proper grid alignment
 - `card.tsx` - Card container component
 - `input.tsx` - Input field component
 - `label.tsx` - Form label component

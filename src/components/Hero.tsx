@@ -19,8 +19,8 @@ export default function Hero() {
             <Image
               src="/moving-truck.svg"
               alt="Moving truck illustration"
-              layout="fill"
-              objectFit="contain"
+              fill
+              style={{ objectFit: "contain" }}
               className="animate-drive"
             />
           </div>
