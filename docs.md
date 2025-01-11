@@ -1,4 +1,4 @@
-# Project Structure Documentation
+run devr# Project Structure Documentation
 
 ## Source Directory (`/src`)
 
@@ -70,6 +70,20 @@ Contains TypeScript type definitions:
 Contains global styling assets:
 - `globals.css` - Global CSS styles
 - `favicon.ico` - Site favicon
+- `Header.module.css` - Styles for the header/navigation component including:
+  - Responsive sidebar behavior
+  - Hover animations and transitions
+  - Mobile-friendly design
+  - Icon and label styling
+  - Active state styling
+
+### Component Architecture
+
+#### Layout and Providers
+The root layout (`src/app/layout.tsx`) includes several important providers and configurations:
+- `TooltipProvider` from shadcn/ui wrapping the entire application to enable tooltip functionality
+- Inter font configuration for consistent typography
+- Responsive layout structure with proper overflow handling
 
 ## Calculator Features
 

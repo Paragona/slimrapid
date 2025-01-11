@@ -23,7 +23,7 @@
 # misc
 .DS_Store
 *.pem
-
+client_secret_1082475419604-i22rck3tedo5jvrk0h8kb55f0355f51m.apps.googleusercontent.com.json*
 # debug
 npm-debug.log*
 yarn-debug.log*

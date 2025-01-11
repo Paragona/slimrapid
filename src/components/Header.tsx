@@ -1,23 +1,90 @@
+"use client"
 import Link from "next/link"
-import { MapPin } from "lucide-react"
+import { MapPin, Home, Star, HelpCircle, Calculator, User, LogIn, UserPlus } from "lucide-react"
+import { usePathname } from "next/navigation"
+import styles from '@/styles/Header.module.css'
+import { cn } from "@/lib/utils"
 
 export default function Header() {
+  const pathname = usePathname()
+
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === path
+    return pathname.startsWith(path) || pathname === path
+  }
+
+  // Mock authentication state - replace with your actual auth logic
+  const isLoggedIn = false;
+
+  const mainNavItems = [
+    { href: '/', icon: <Home className={styles.icon} />, label: 'Home' },
+    { href: '#features', icon: <Star className={styles.icon} />, label: 'Features' },
+    { href: '#how-it-works', icon: <HelpCircle className={styles.icon} />, label: 'How It Works' },
+    { href: '/calculator', icon: <Calculator className={styles.icon} />, label: 'Calculator' },
+  ]
+
+  const authNavItems = isLoggedIn 
+    ? [{ href: '/profile', icon: <User className={styles.icon} />, label: 'Profile' }]
+    : [
+        { href: '/login', icon: <LogIn className={styles.icon} />, label: 'Login' },
+        { href: '/register', icon: <UserPlus className={styles.icon} />, label: 'Register' }
+      ];
+
   return (
-    <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <MapPin className="h-8 w-8 text-blue-600" />
-          <span className="text-2xl font-bold text-gray-800">Destinopia</span>
-        </Link>
-        <nav>
-          <ul className="flex space-x-6">
-            <li><Link href="#features" className="text-gray-600 hover:text-blue-600">Features</Link></li>
-            <li><Link href="#how-it-works" className="text-gray-600 hover:text-blue-600">How It Works</Link></li>
-            <li><Link href="#testimonials" className="text-gray-600 hover:text-blue-600">Testimonials</Link></li>
-            <li><Link href="/calculator" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Get Started</Link></li>
-          </ul>
-        </nav>
-      </div>
+    <header className={styles.header}
+    >
+      <Link href="/" className={styles.logo}>
+        <MapPin className={styles.logoIcon} />
+        <span className={styles.logoText}>
+          Destinopia
+        </span>
+      </Link>
+      
+      {/* Main Navigation - Centered */}
+      <nav className={styles.mainNav}>
+        <ul className={styles.navList}>
+          {mainNavItems.map((item) => (
+            <li key={item.href}>
+              <Link 
+                href={item.href} 
+                className={cn(styles.navItem, {
+                  [styles.active]: isActive(item.href)
+                })}
+              >
+                <div className={styles.iconWrapper}>
+                  {item.icon}
+                </div>
+                <span className={styles.label}>
+                  {item.label}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Auth Navigation - Bottom */}
+      <nav className={styles.authNav}>
+        <ul className={styles.navList}>
+          {authNavItems.map((item) => (
+            <li key={item.href}>
+              <Link 
+                href={item.href} 
+                className={cn(styles.navItem, {
+                  [styles.active]: isActive(item.href)
+                })}
+              >
+                <div className={styles.iconWrapper}>
+                  {item.icon}
+                </div>
+                <span className={styles.label}>
+                  {item.label}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   )
 }

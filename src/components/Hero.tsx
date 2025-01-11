@@ -4,8 +4,8 @@ import { ArrowRight } from "lucide-react"
 
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-r from-blue-600 to-green-400 text-white py-20">
-      <div className="container mx-auto px-4 flex flex-col lg:flex-row items-center">
+    <section className="bg-gradient-to-r from-blue-600 to-green-400 text-white min-h-screen pl-16 md:pl-48 lg:pl-64">
+      <div className="container mx-auto px-8 py-20 flex flex-col lg:flex-row items-center">
         <div className="lg:w-1/2 text-center lg:text-left mb-10 lg:mb-0">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">Calculate Your Move with Precision</h1>
           <p className="text-xl md:text-2xl mb-8">Plan your journey, estimate costs, and find the best route for your move.</p>
