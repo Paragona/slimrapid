@@ -66,6 +66,13 @@ export default function RegisterPage() {
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    await signInWithGoogle()
+    if (!authError) {
+      router.push("/")
+    }
+  }
+
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -187,21 +194,29 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
               Register
+            </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogleSignIn}
+              className="w-full"
+            >
+              Sign up with Google
             </Button>
           </div>
         </form>
-
-        <div className="mt-6">
-          <Button 
-            onClick={() => signInWithGoogle()}
-            variant="outline"
-            className="w-full"
-          >
-            Sign up with Google
-          </Button>
-        </div>
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Already have an account?{' '}
