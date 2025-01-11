@@ -1,194 +1,192 @@
-run devr# Project Structure Documentation
+# Authentication and Profile System
 
-## Source Directory (`/src`)
+## Directory Structure
 
-The source directory is organized into several key folders, each serving a specific purpose in the Next.js application:
+```
+src/
+├── app/
+│   ├── (auth)/                  # Auth group layout
+│   │   ├── layout.tsx           # Auth-specific layout (no header/footer)
+│   │   ├── login/              
+│   │   │   └── page.tsx         # Login page with redirect to '/'
+│   │   └── register/
+│   │       └── page.tsx         # Registration with optional profile fields
+│   └── profile/
+│       └── page.tsx             # Profile management page
+├── auth/
+│   └── AuthContext.tsx          # Authentication context and Firebase integration
+└── components/
+    ├── nav-user.tsx             # User navigation with profile link and logout
+    └── ui/
+        └── address-input.tsx     # Reusable address input component
+```
 
-### App Directory (`/src/app`)
-Contains the core application pages and layouts using Next.js 13+ App Router:
-- `layout.tsx` - Root layout component that wraps all pages
-- `page.tsx` - Main homepage component
-- `/calculator` - Calculator feature subdirectory
-  - `layout.tsx` - Calculator-specific layout
-  - `page.tsx` - Moving cost calculator component with interactive features
+## Features
 
-### Components Directory (`/src/components`)
-Houses all React components, divided into feature components, calculator components, and reusable UI components:
+### Authentication
 
-#### Feature Components
-- `Features.tsx` - Features showcase component
-- `Footer.tsx` - Site-wide footer component
-- `Header.tsx` - Site-wide header/navigation component
-- `Hero.tsx` - Hero/banner section component
-- `HowItWorks.tsx` - Process explanation component
-- `MapboxComponent.tsx` - Interactive map component with route visualization
-- `Testimonials.tsx` - User testimonials component
+1. JWT Implementation
+   - JWT stored in HTTP-only cookies
+   - Payload structure:
+     ```typescript
+     {
+       uid: string      // Firebase user ID
+       email: string    // User's email
+       name?: string    // Optional user name
+       exp: number      // Expiration timestamp (7 days)
+     }
+     ```
+   - Token management:
+     - Created on login/registration
+     - Verified on app initialization
+     - Removed on logout
+     - Auto-expires after 7 days
 
-#### Calculator Components (`/src/components/calculator`)
-- `CalculatorForm.tsx` - Form component handling all move details inputs
-- `CostBreakdown.tsx` - Component displaying detailed cost breakdown
-- `RouteMap.tsx` - Component handling map display and route visualization
+2. Login (`/login`)
+   - Email/password authentication
+   - Google sign-in
+   - Redirect to home page after successful login
 
-#### UI Components (`/src/components/ui`)
-Reusable UI components library:
-- `address-input.tsx` - Enhanced address input with auto-complete suggestions
-- `button.tsx` - Button component
-- `calendar.tsx` - Calendar/date picker component:
-  - Uses react-calendar for core functionality
-  - Custom styling to match design system
-  - English localization with:
-    - 2-letter weekday abbreviations (Su, Mo, Tu)
-    - Full month names
-    - US date formatting
-  - Features:
-    - Date selection with disabled past dates
-    - Modern hover and active states
-    - Compact grid layout
-    - Responsive design
-  - Styling:
-    - Custom CSS in `/src/styles/calendar.css`
-    - Tailwind integration for container
-    - Consistent typography and spacing
-    - Proper grid alignment
-- `card.tsx` - Card container component
-- `input.tsx` - Input field component
-- `label.tsx` - Form label component
-- `select.tsx` - Select/dropdown component
-- `tooltip.tsx` - Tooltip component for displaying helpful information
+2. Registration (`/register`)
+   - Required fields:
+     - Email
+     - Password (min 6 characters)
+     - Password confirmation
+   - Optional fields:
+     - Name
+     - Mobile number (validated format)
+     - Address (using AddressInput component)
+     - Zipcode (validated format)
+   - Data saved to Firestore on successful registration
 
-### Library Directory (`/src/lib`)
-Contains utility functions and shared code:
-- `utils.ts` - General utility functions and helpers
+3. Logout
+   - Available in user dropdown menu
+   - Redirects to login page
 
-### Types Directory (`/src/types`)
-Contains TypeScript type definitions:
-- `calculator.ts` - Shared types for calculator components including:
-  - MoveDetails - Type for move specifications
-  - CostBreakdownType - Type for cost calculation results
+### Profile Management
 
-### Styles Directory (`/src/styles`)
-Contains global styling assets:
-- `globals.css` - Global CSS styles
-- `favicon.ico` - Site favicon
-- `Header.module.css` - Styles for the header/navigation component including:
-  - Responsive sidebar behavior
-  - Hover animations and transitions
-  - Mobile-friendly design
-  - Icon and label styling
-  - Active state styling
+1. Profile Page (`/profile`)
+   - Protected route (redirects to login if not authenticated)
+   - Edit user information:
+     - Name
+     - Mobile number
+     - Address
+     - Zipcode
+   - Real-time validation
+   - Success/error messages
+   - Data persistence in Firestore
 
-### Component Architecture
+### Data Validation (Zod Schemas)
 
-#### Layout and Providers
-The root layout (`src/app/layout.tsx`) includes several important providers and configurations:
-- `AuthProvider` for Firebase authentication and user management
-- `TooltipProvider` from shadcn/ui wrapping the entire application to enable tooltip functionality
-- Inter font configuration for consistent typography
-- Responsive layout structure with proper overflow handling
+1. Registration Schema
+```typescript
+{
+  email: string (email format)
+  password: string (min 6 chars)
+  confirmPassword: string (must match password)
+  name: string (optional)
+  mobile: string (regex: /^\+?[1-9]\d{1,14}$/) (optional)
+  address: string (optional)
+  zipcode: string (regex: /^\d{5}(-\d{4})?$/) (optional)
+}
+```
 
-#### Authentication
-The application uses Firebase Authentication with the following features:
-- Multiple authentication methods:
-  - Email/password registration and login
-  - Google OAuth sign-in integration
-- Secure authentication state management through React Context
-- Persistent user sessions
-- Protected routes and content
-- User profile display in navigation
-- Form validation and error handling
-- Responsive authentication pages
+2. Profile Schema
+```typescript
+{
+  name: string (optional)
+  mobile: string (regex: /^\+?[1-9]\d{1,14}$/) (optional)
+  address: string (optional)
+  zipcode: string (regex: /^\d{5}(-\d{4})?$/) (optional)
+}
+```
 
-Components:
-- `AuthContext.tsx` - Context provider for authentication state and methods
-- `Header.tsx` - Integrated login/logout functionality with dynamic user display
-- Authentication Pages:
-  - `/login/page.tsx` - Login page with email and Google sign-in options
-  - `/register/page.tsx` - Registration page with:
-    - Email/password registration
-    - Password confirmation
-    - Validation rules (min length, matching passwords)
-    - Google sign-up option
-    - Error handling and display
+### Firestore Integration
 
-## Calculator Features
+1. User Collection
+```typescript
+users/{uid}/
+{
+  email: string
+  name?: string
+  mobile?: string
+  address?: string
+  zipcode?: string
+  createdAt: timestamp  // Set during registration
+  updatedAt: timestamp  // Updated when profile is modified
+}
+```
 
-The moving cost calculator is built with a modular architecture, with the main logic in `/src/app/calculator/page.tsx` and specialized components in `/src/components/calculator/`. It includes several interactive features:
+### JWT Utilities (`src/lib/jwt.ts`)
 
-### Address Input
-- Real-time address suggestions using Mapbox geocoding API
-- Auto-complete dropdown with click-outside behavior
-- Visual feedback for required fields
-- Address validation and error handling
+1. Client-side Functions
+   ```typescript
+   createToken(payload: JWTPayload): string
+   verifyToken(token: string): JWTPayload | null
+   getTokenFromStorage(): string | null
+   setTokenInStorage(token: string): void
+   removeTokenFromStorage(): void
+   ```
 
-### Cost Calculation and Breakdown
-- Real-time cost updates as inputs change
-- Comprehensive route summary showing:
-  - Origin and destination addresses
-  - Total distance in kilometers
-- Smart price calibration with dynamic base rates:
-  - Studio: $500-$870
-  - 1 Bedroom: $700-$1,900
-  - 2 Bedrooms: $1,000-$3,200
-  - 3 Bedrooms: $1,500-$5,000
-  - 4+ Bedrooms: $2,000-$6,000
-- Sophisticated seasonal pricing:
-  - Peak summer (June-August): 15% surcharge
-  - Secondary peak (April-May, September): 10% surcharge
-  - Weekend moves: 15% surcharge
-- Advanced distance cost calculation:
-  - 0-50 miles: $2/mile
-  - 51-100 miles: $1.8/mile
-  - 101-500 miles: $1.5/mile
-  - 500+ miles: $1.2/mile
-- Additional costs:
-  - Floor cost ($50 per floor without elevator)
-  - Parking distance cost ($1 per foot)
+2. Server-side Functions
+   ```typescript
+   getServerSideToken(headers: Headers): Promise<string | null>
+   ```
 
-### Interactive UI
-- Collapsible sections for better organization:
-  - Basic Information (addresses)
-  - Move Details (size and date)
-  - Origin Details (floor, elevator, parking)
-  - Destination Details (floor, elevator, parking)
-- Tooltips providing helpful information for each input
-- Loading states and error handling
-- Responsive design for all screen sizes
+3. Cookie Configuration
+   - Secure flag enabled
+   - SameSite=strict
+   - 7-day expiration
+   - HTTP-only for security
 
-### Map Integration
-- Interactive map showing route between addresses
-- Route visualization using Mapbox Directions API
-- Distance calculation for accurate cost estimation
-- Visual representation of origin and destination
+4. Middleware Protection (`middleware.ts`)
+   - Protects routes: /profile, /dashboard
+   - Redirects to login if no valid token
+   - Handles auth-only routes (/login, /register)
+   - Preserves intended destination with 'from' parameter
 
-### User Experience
-- Form validation and error messages
-- Visual feedback for input states
-- Smooth transitions and animations
-- Enhanced cost breakdown with:
-  - Route summary section
-  - Detailed cost itemization with icons
-  - Clear separation of costs by category
-- Modern and clean interface
-- Optimized scrolling behavior:
-  - Proper viewport handling
-  - Smooth scrolling on all screen sizes
-  - No content overflow issues
+### Components
 
-### Layout and Responsiveness
-- Hierarchical layout structure:
-  - Root layout (`layout.tsx`) with proper overflow handling
-  - Calculator-specific layout for feature isolation
-  - Responsive container sizing
-- Scroll behavior optimization:
-  - Vertical scrolling enabled at layout level
-  - Horizontal overflow prevention
-  - Content containment within viewport
-- Mobile-friendly design with proper spacing
+1. AddressInput
+   - Reusable component from calculator
+   - Props:
+     - id: string
+     - label: string
+     - value: string
+     - onChange: (value: string) => void
+     - onSelect: (address: string) => void
+     - suggestions: string[]
+     - error?: boolean
 
-This structure follows modern React/Next.js best practices with a clear separation of concerns:
-- App router pages for routing and layouts
-- Modular components for UI elements
-- Shared TypeScript types for type safety
-- Shared utilities in lib
-- Global styles in a dedicated directory
-- Component-specific logic encapsulated in dedicated components
+2. NavUser
+   - User dropdown menu
+   - Profile link
+   - Logout functionality
+   - Displays user info:
+     - Email
+     - Name (if available)
+     - Avatar
+
+### Layout System
+
+1. Auth Layout (`(auth)/layout.tsx`)
+   - Clean layout without header/footer
+   - Centered content
+   - Used for login and registration pages
+
+2. Main Layout (`layout.tsx`)
+   - Includes header and footer
+   - Side navigation
+   - Used for authenticated pages
+
+### Navigation Flow
+
+1. Unauthenticated Users
+   - Can access: /login, /register
+   - Redirected to /login for protected routes
+
+2. Authenticated Users
+   - Redirected to / after login
+   - Can access all routes
+   - Profile accessible via user dropdown
+   - Logout returns to login page

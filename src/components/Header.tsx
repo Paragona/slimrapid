@@ -29,24 +29,17 @@ export default function Header() {
     { href: '/', icon: <Home className={styles.icon} />, label: 'Home' },
     { href: '#features', icon: <Star className={styles.icon} />, label: 'Features' },
     { href: '#how-it-works', icon: <HelpCircle className={styles.icon} />, label: 'How It Works' },
+    { href: '/destinations', icon: <MapPin className={styles.icon} />, label: 'Destinations' },
     { href: '/calculator', icon: <Calculator className={styles.icon} />, label: 'Calculator' },
   ]
 
-  const authNavItems: NavItem[] = isLoggedIn 
+  const authNavItems: NavItem[] = isLoggedIn
     ? [
-        { 
-          href: '/profile', 
-          icon: <User className={styles.icon} />, 
-          label: user.displayName || user.email || 'Profile',
-          onClick: logout
-        }
+        { href: '/profile', icon: <User className={styles.icon} />, label: 'Profile' },
+        { href: '#', icon: <LogIn className={styles.icon} />, label: 'Logout', onClick: logout }
       ]
     : [
-        { 
-          href: '/login', 
-          icon: <LogIn className={styles.icon} />, 
-          label: 'Login'
-        }
+        { href: '/login', icon: <LogIn className={styles.icon} />, label: 'Login' }
       ];
 
   const NavItemComponent = ({ item }: { item: NavItem }) => {
