@@ -22,3 +22,28 @@ I0111 23:31:49.331231  297442 dev.go:95] Listening on address (HTTP + gRPC): 127
  {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0111 23:31:49.291115  297442 load.go:37] Reloading schema and connectors...\nI0111 23:31:49.302773  297442 control.go:45] [engine.Service /emulator/destinopia b2b2] UpdateSchema(): done sources: schema/schema.gql [1384B] \nI0111 23:31:49.308731  297442 control.go:73] [engine.Service /emulator/destinopia b2b2] UpdateConnector(default): done sources: connector/queries.gql [1855B] connector/mutations.gql [1163B] \nI0111 23:31:49.324550  297442 codegen.go:82] [connector \"default\" javascriptSdk] Generating sources into \"/home/lol/Desktop/destinopia/destinopia/dataconnect-generated/js/default-connector\"\nI0111 23:31:49.325241  297442 collector.go:107] schema extensions wrote into \"/home/lol/Desktop/destinopia/destinopia/dataconnect/.dataconnect/schema\"\nGenerated sources: prelude.gql [65151B] \nI0111 23:31:49.325508  297442 collector.go:107] connector \"default\" javascriptSdk wrote into \"/home/lol/Desktop/destinopia/destinopia/dataconnect-generated/js/default-connector\"\nGenerated sources: esm/package.json [17B] index.cjs.js [224B] package.json [634B] index.d.ts [264B] esm/index.esm.js [183B] \nI0111 23:31:49.328673  297442 installsdk.go:48] Package @firebasegen/default-connector is already installed. Skipping installation\nI0111 23:31:49.328706  297442 load.go:115] Finished reloading\nI0111 23:31:49.331231  297442 dev.go:95] Listening on address (HTTP + gRPC): 127.0.0.1:50001\n"}}
 [debug] [2025-01-11T22:31:49.987Z] I0111 23:31:49.979762  297442 engine.go:148] [engine.Service /emulator/destinopia b2b2] ExecuteGraphqlRead IntrospectionQuery: succeeded. 
  {"metadata":{"emulator":{"name":"dataconnect"},"message":"I0111 23:31:49.979762  297442 engine.go:148] [engine.Service /emulator/destinopia b2b2] ExecuteGraphqlRead IntrospectionQuery: succeeded. \n"}}
+[debug] [2025-01-11T22:37:10.014Z] [Firebase Plugin] Value of process.env.MONOSPACE_ENV: undefined
+[debug] [2025-01-11T22:37:10.014Z] [Firebase Plugin] requireAuthWrapper
+[debug] [2025-01-11T22:37:10.016Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-11T22:37:10.016Z] > authorizing via signed-in user (jansimunek.sa@gmail.com)
+[debug] [2025-01-11T22:37:10.017Z] Checked if tokens are valid: true, expires at: 1736638218014
+[debug] [2025-01-11T22:37:10.017Z] Checked if tokens are valid: true, expires at: 1736638218014
+[debug] [2025-01-11T22:37:10.017Z] [Firebase Plugin] User found:  jansimunek.sa@gmail.com
+[info] [Firebase Plugin] (Core:Project) New user detected, fetching projects
+[debug] [2025-01-11T22:37:10.018Z] Checked if tokens are valid: true, expires at: 1736638218014
+[debug] [2025-01-11T22:37:10.019Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2025-01-11T22:37:10.021Z] [Firebase Plugin] Value of process.env.MONOSPACE_ENV: undefined
+[debug] [2025-01-11T22:37:10.022Z] [Firebase Plugin] requireAuthWrapper
+[debug] [2025-01-11T22:37:10.022Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-11T22:37:10.022Z] > authorizing via signed-in user (jansimunek.sa@gmail.com)
+[debug] [2025-01-11T22:37:10.023Z] Checked if tokens are valid: true, expires at: 1736638218014
+[debug] [2025-01-11T22:37:10.023Z] [Firebase Plugin] User found:  jansimunek.sa@gmail.com
+[info] [Firebase Plugin] (Core:Project) New user detected, fetching projects
+[debug] [2025-01-11T22:37:10.023Z] Checked if tokens are valid: true, expires at: 1736638218014
+[debug] [2025-01-11T22:37:10.023Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
+[debug] [2025-01-11T22:37:10.481Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2025-01-11T22:37:10.481Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2025-01-11T22:37:10.792Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2025-01-11T22:37:10.792Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] [Firebase Plugin] Stopping Data Connect toolkit
+[warn] ⚠  Data Connect Emulator has exited upon receiving signal: SIGINT 

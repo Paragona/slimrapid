@@ -1,122 +1,109 @@
-Let me break down the essential elements for the first phase of Destinopia:
+# App Structure
 
-## Phase 1 Core Components
+## src/
+### app/
+- layout.tsx
+- page.tsx
+- (auth)/
+- calculator/
+  - layout.tsx
+  - page.tsx
+- dashboard/
+  - page.tsx
+- profile/
+  - page.tsx
 
-1. **Header/Navigation**
-```typescript
-components/
-  layout/
-    Header.tsx
-    Navigation.tsx
-    Footer.tsx
-```
+### auth/
+- AuthContext.tsx
 
-2. **Calculator Core**
-```typescript
-components/
-  calculator/
-    AddressInput.tsx      // Google Places integration
-    HomeSize.tsx          // Room selector
-    SpecialItems.tsx      // Piano, safe, etc.
-    DatePicker.tsx        // Moving date
-    CostBreakdown.tsx     // Price summary
-    CalculatorSteps.tsx   // Step wizard
-```
+### components/
+- app-sidebar.tsx
+- Features.tsx
+- Footer.tsx
+- Header.tsx
+- Hero.tsx
+- HowItWorks.tsx
+- MapboxComponent.tsx
+- MapComponent.tsx
+- nav-main.tsx
+- nav-projects.tsx
+- nav-secondary.tsx
+- nav-user.tsx
+- Sidebar.tsx
+- Testimonials.tsx
+- calculator/
+  - CalculatorForm.tsx
+  - CostBreakdown.tsx
+  - MoveDetailsSection.tsx
+  - RouteMap.tsx
+- ui/
+  - address-input.tsx
+  - avatar.tsx
+  - breadcrumb.tsx
+  - button.tsx
+  - calendar.tsx
+  - card.tsx
+  - collapsible.tsx
+  - dropdown-menu.tsx
+  - input.tsx
+  - label.tsx
+  - select.tsx
+  - separator.tsx
+  - sheet.tsx
+  - sidebar.tsx
+  - skeleton.tsx
+  - tooltip.tsx
 
-3. **Basic Pages**
-```typescript
-app/
-  page.tsx               // Homepage
-  calculate/
-    page.tsx            // Calculator page
-  services/
-    page.tsx           // Services overview
-  about/
-    page.tsx           // About page
-```
+### hooks/
+- use-mobile.tsx
 
-4. **Essential Types**
-```typescript
-types/
-  calculator.ts
+### lib/
+- firebase.ts
+- jwt.ts
+- utils.ts
 
-interface MoveDetails {
-  origin: {
-    address: string
-    coordinates: {
-      lat: number
-      lng: number
-    }
-  }
-  destination: {
-    address: string
-    coordinates: {
-      lat: number
-      lng: number
-    }
-  }
-  homeSize: 'studio' | '1bed' | '2bed' | '3bed' | '4bed'
-  moveDate: Date
-  specialItems: SpecialItem[]
-  services: AdditionalService[]
-}
+### styles/
+- calendar.css
+- favicon.ico
+- globals.css
+- Header.module.css
 
-interface SpecialItem {
-  type: 'piano' | 'pool_table' | 'safe' | 'artwork'
-  quantity: number
-}
+### types/
+- calculator.ts
 
-interface AdditionalService {
-  type: 'packing' | 'storage' | 'insurance'
-  details?: string
-}
+## public/
+- file.svg
+- globe.svg
+- index.html
+- moving-truck.svg
+- next.svg
+- vercel.svg
+- window.svg
 
-interface CostEstimate {
-  baseRate: number
-  distanceCost: number
-  specialItemsCost: number
-  servicesCost: number
-  totalEstimate: number
-}
-```
+## functions/
+- .eslintrc.js
+- .gitignore
+- package-lock.json
+- package.json
+- tsconfig.dev.json
+- tsconfig.json
+- src/
+  - index.ts
 
-5. **Core Functions**
-```typescript
-lib/
-  calculator/
-    calculateDistance.ts    // Google Distance Matrix
-    calculateBaseCost.ts    // Base pricing
-    calculateSpecialItems.ts // Special items pricing
-    calculateServices.ts    // Additional services
-```
-
-6. **API Routes**
-```typescript
-app/api/
-  calculate/
-    route.ts              // Calculate cost
-  leads/
-    route.ts             // Save lead
-```
-
-7. **Database Schema (MongoDB)**
-```typescript
-models/
-  Move.ts
-  Lead.ts
-  Estimate.ts
-```
-
-8. **Initial Styling**
-```typescript
-styles/
-  globals.css           // Base Tailwind + custom styles
-```
-
-Would you like me to:
-1. Start with setup of the project structure?
-2. Create the basic calculator component?
-3. Implement Google Maps integration?
-4. Set up the MongoDB schema?
-
-Choose what you'd like to tackle first and I'll provide the detailed implementation.
+## dataconnect/
+- dataconnect.yaml
+- connector/
+  - connector.yaml
+  - mutations.gql
+  - queries.gql
+- schema/
+  - schema.gql
+- dataconnect-generated/
+  - js/
+    - default-connector/
+      - index.cjs.js
+      - index.d.ts
+      - package.json
+      - esm/
+        - index.esm.js
+        - package.json
