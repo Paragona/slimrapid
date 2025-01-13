@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Truck } from 'lucide-react';
 import {
   Card,
@@ -50,6 +50,7 @@ export default function CalculatorPage() {
     origin: [] as string[],
     destination: [] as string[]
   });
+  const summaryRef = useRef<HTMLDivElement>(null);
 
   const getBaseRate = (moveSize: string, distance: number) => {
     const baseRates = {
@@ -178,6 +179,35 @@ export default function CalculatorPage() {
 
       setOriginCoordinates(originCoords);
       setDestinationCoordinates(destinationCoords);
+
+      // Get the actual driving route and distance using Mapbox Directions API
+      const directionsResponse = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoords[0]},${originCoords[1]};${destinationCoords[0]},${destinationCoords[1]}?` +
+        `access_token=${process.env.NEXT_PUBLIC_MAPBOX_API_KEY}&geometries=geojson`
+      );
+
+      if (!directionsResponse.ok) {
+        throw new Error('Failed to calculate route');
+      }
+
+      const directionsData = await directionsResponse.json();
+      
+      if (!directionsData.routes || directionsData.routes.length === 0) {
+        throw new Error('No route found between these locations');
+      }
+
+      // Distance comes in meters, convert to kilometers
+      const distanceInKm = directionsData.routes[0].distance / 1000;
+      calculateCost(distanceInKm);
+      
+      // Scroll to summary after calculation
+      setTimeout(() => {
+        summaryRef.current?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 500); // Small delay to ensure the summary is rendered
+
     } catch (err) {
       setError('An error occurred while calculating the distance');
       console.error(err);
@@ -194,6 +224,11 @@ export default function CalculatorPage() {
         return;
       }
 
+      if (!process.env.NEXT_PUBLIC_MAPBOX_API_KEY) {
+        console.error('Mapbox API key is not configured');
+        return;
+      }
+
       try {
         const response = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?` +
@@ -201,15 +236,30 @@ export default function CalculatorPage() {
           `&types=address` +
           `&country=us,ca` // Restrict to USA and Canada
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        if (!data.features || !Array.isArray(data.features)) {
+          console.error('Unexpected API response format:', data);
+          setAddressSuggestions(prev => ({ ...prev, [type]: [] }));
+          return;
+        }
+
         const suggestions = data.features
-          .filter((f: MapboxFeature) => f.context?.some((c) => 
-            c.id.startsWith('country') && (c.short_code === 'us' || c.short_code === 'ca')
-          ))
+          .filter((f: MapboxFeature) => 
+            f && f.context && Array.isArray(f.context) && 
+            f.context.some((c) => c && c.id && c.id.startsWith('country') && 
+              (c.short_code === 'us' || c.short_code === 'ca'))
+          )
           .map((f: MapboxFeature) => f.place_name);
+          
         setAddressSuggestions(prev => ({ ...prev, [type]: suggestions }));
       } catch (error) {
         console.error('Error fetching address suggestions:', error);
+        setAddressSuggestions(prev => ({ ...prev, [type]: [] }));
       }
     };
 
@@ -255,20 +305,24 @@ export default function CalculatorPage() {
               addressSuggestions={addressSuggestions}
             />
 
-            {costBreakdown && (
-              <CostBreakdown 
-                costBreakdown={costBreakdown}
-                origin={origin}
-                destination={destination}
-              />
+            {originCoordinates && destinationCoordinates && (
+              <div className="h-[400px]">
+                <RouteMap
+                  originCoordinates={originCoordinates}
+                  destinationCoordinates={destinationCoordinates}
+                  onRouteCalculated={(distance) => calculateCost(distance)}
+                />
+              </div>
             )}
 
-            {originCoordinates && destinationCoordinates && (
-              <RouteMap
-                originCoordinates={originCoordinates}
-                destinationCoordinates={destinationCoordinates}
-                onRouteCalculated={calculateCost}
-              />
+            {costBreakdown && (
+              <div ref={summaryRef} className="scroll-mt-8">
+                <CostBreakdown 
+                  costBreakdown={costBreakdown}
+                  origin={origin}
+                  destination={destination}
+                />
+              </div>
             )}
           </div>
         </CardContent>
