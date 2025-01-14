@@ -1,0 +1,14 @@
+For this frontend we using:
+ - React 19
+ - React Router 
+ - React Query 
+ - React Leaflet 
+ - React Hook Form 
+ - Zod
+ - typescript
+ - tailwindcss
+ - middleware
+ - shadcn ui
+ - lucide-react
+ - radix-ui
+All types must be written in zod format and in app/lib or app/types
