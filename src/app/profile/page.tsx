@@ -21,7 +21,7 @@ const profileSchema = z.object({
 type UserProfile = z.infer<typeof profileSchema>
 
 export default function ProfilePage() {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const [profile, setProfile] = useState<UserProfile>({
     name: null,
@@ -32,28 +32,30 @@ export default function ProfilePage() {
   const [addressSuggestions] = useState<string[]>([]) // In a real app, this would be populated from an API
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.push("/login")
       return
     }
 
-    // Fetch user profile data from Firestore
-    const fetchProfile = async () => {
-      const db = getFirestore()
-      const userDoc = await getDoc(doc(db, "users", user.uid))
-      if (userDoc.exists()) {
-        const data = userDoc.data()
-        setProfile({
-          name: data.name || null,
-          mobile: data.mobile || null,
-          address: data.address || null,
-          zipcode: data.zipcode || null
-        })
+    if (!loading && user) {
+      // Fetch user profile data from Firestore
+      const fetchProfile = async () => {
+        const db = getFirestore()
+        const userDoc = await getDoc(doc(db, "users", user._id))
+        if (userDoc.exists()) {
+          const data = userDoc.data()
+          setProfile({
+            name: data.name || null,
+            mobile: data.mobile || null,
+            address: data.address || null,
+            zipcode: data.zipcode || null
+          })
+        }
       }
-    }
 
-    fetchProfile()
-  }, [user, router])
+      fetchProfile()
+    }
+  }, [user, loading, router])
 
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -65,7 +67,7 @@ export default function ProfilePage() {
       const validatedData = profileSchema.parse(profile)
       
       const db = getFirestore()
-      await setDoc(doc(db, "users", user.uid), {
+      await setDoc(doc(db, "users", user._id), {
         ...validatedData,
         email: user.email,
         updatedAt: new Date().toISOString()

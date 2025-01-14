@@ -1,24 +1,61 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifyToken, getServerSideToken } from './lib/jwt'
+import { ProtectedRouteConfig } from './types/auth'
 
-// List of paths that are only accessible to non-authenticated users
-const authPaths = ['/login', '/register']
+// Route configuration for authentication and protection
+const routeConfig: ProtectedRouteConfig[] = [
+  // Auth-only routes (redirect to home if authenticated)
+  { path: '/login', requireAuth: false, redirectTo: '/' },
+  { path: '/register', requireAuth: false, redirectTo: '/' },
+  
+  // Protected routes (redirect to login if not authenticated)
+  { path: '/profile', requireAuth: true, redirectTo: '/login' },
+  { path: '/calculator', requireAuth: true, redirectTo: '/login' },
+  { path: '/dashboard', requireAuth: true, redirectTo: '/login' },
+]
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname
-  const token = await getServerSideToken(request.headers)
+  try {
+    const path = request.nextUrl.pathname
+    const token = await getServerSideToken(request.headers)
+    const isAuthenticated = token ? await verifyToken(token) : false
 
-  // Check if path is auth-only (login/register) and user is already authenticated
-  if (authPaths.some(p => path.startsWith(p))) {
-    if (token && await verifyToken(token)) {
-      return NextResponse.redirect(new URL('/', request.url))
+    // Find matching route configuration
+    const matchedRoute = routeConfig.find(route => 
+      path.startsWith(route.path) || path === route.path
+    )
+
+    if (matchedRoute) {
+      // Handle protected routes
+      if (matchedRoute.requireAuth && !isAuthenticated) {
+        const loginUrl = new URL(matchedRoute.redirectTo || '/login', request.url)
+        loginUrl.searchParams.set('from', path)
+        return NextResponse.redirect(loginUrl)
+      }
+
+      // Handle auth-only routes
+      if (!matchedRoute.requireAuth && isAuthenticated) {
+        return NextResponse.redirect(new URL(matchedRoute.redirectTo || '/', request.url))
+      }
     }
-  }
 
-  return NextResponse.next()
+    return NextResponse.next()
+  } catch (error) {
+    console.error('Middleware error:', error)
+    // On error, redirect to login for safety
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 }
 
+// Update matcher configuration to include all protected routes
 export const config = {
-  matcher: ['/login', '/register']
+  matcher: [
+    '/login',
+    '/register',
+    '/profile',
+    '/calculator',
+    '/dashboard',
+    '/profile/:path*',
+  ]
 }

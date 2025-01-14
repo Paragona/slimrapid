@@ -36,7 +36,7 @@ export default function RegisterPage() {
     zipcode: null
   })
   const [localError, setLocalError] = useState<string | null>(null)
-  const { registerWithEmail, signInWithGoogle, error: authError } = useAuth()
+  const { registerWithEmail, error: authError } = useAuth()
   const router = useRouter()
   const [addressSuggestions] = useState<string[]>([]) // In a real app, this would be populated from an API
 
@@ -67,10 +67,7 @@ export default function RegisterPage() {
   }
 
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle()
-    if (!authError) {
-      router.push("/")
-    }
+    console.log('Google sign-in is not available')
   }
 
   return (
@@ -215,6 +212,12 @@ export default function RegisterPage() {
             >
               Sign up with Google
             </Button>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-600 hover:text-blue-800">
+              Sign in here
+            </Link>
           </div>
         </form>
 

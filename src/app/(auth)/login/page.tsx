@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
+import Link from "next/link"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { signInWithEmail, signInWithGoogle, error } = useAuth()
+  const { signInWithEmail, error } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -24,10 +25,8 @@ export default function LoginPage() {
   }
 
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle()
-    if (!error) {
-      router.push("/")
-    }
+    // Removed Google sign-in functionality
+    console.log('Google sign-in is not available')
   }
 
   return (
@@ -82,6 +81,12 @@ export default function LoginPage() {
             >
               Sign in with Google
             </Button>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="text-blue-600 hover:text-blue-800">
+              Register here
+            </Link>
           </div>
         </form>
       </Card>

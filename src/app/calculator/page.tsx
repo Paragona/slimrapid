@@ -12,6 +12,7 @@ import {
 import { CalculatorForm } from '@/components/calculator/CalculatorForm';
 import { CostBreakdown } from '@/components/calculator/CostBreakdown';
 import { RouteMap } from '@/components/calculator/RouteMap';
+import { Summary } from '@/components/calculator/Summary';
 import { MoveDetails, CostBreakdownType } from '@/types/calculator';
 
 interface MapboxFeature {
@@ -315,14 +316,18 @@ export default function CalculatorPage() {
               </div>
             )}
 
+            {/* Move Summary */}
+            {origin && destination && (
+              <Summary
+                origin={origin}
+                destination={destination}
+                costBreakdown={costBreakdown}
+              />
+            )}
+
+            {/* Cost Breakdown */}
             {costBreakdown && (
-              <div ref={summaryRef} className="scroll-mt-8">
-                <CostBreakdown 
-                  costBreakdown={costBreakdown}
-                  origin={origin}
-                  destination={destination}
-                />
-              </div>
+              <CostBreakdown costBreakdown={costBreakdown} />
             )}
           </div>
         </CardContent>

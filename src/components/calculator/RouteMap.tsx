@@ -1,5 +1,5 @@
 import { MapPin } from 'lucide-react';
-import MapboxComponent from '@/components/MapboxComponent';
+import { MapboxComponent } from '@/components/MapboxComponent';
 
 interface RouteMapProps {
   originCoordinates: [number, number] | undefined;

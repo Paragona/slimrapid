@@ -43,10 +43,12 @@ export function getTokenFromStorage(): string | null {
 }
 
 export function setTokenInStorage(token: string): void {
+  // Set cookie with proper attributes for persistence
   Cookies.set(JWT_COOKIE_NAME, token, {
-    expires: 7,
+    expires: 7, // 7 days
+    path: '/',
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict'
+    sameSite: 'lax'
   })
 }
 
@@ -63,11 +65,9 @@ export function getServerSideToken(headers: Headers): string | null {
   const cookies = headers.get('cookie')
   if (!cookies) return null
 
-  const cookieValue = cookies
-    .split(';')
-    .find(cookie => cookie.trim().startsWith(`${JWT_COOKIE_NAME}=`))
-    ?.trim()
-    .slice(JWT_COOKIE_NAME.length + 1)
-
-  return cookieValue || null
+  const cookieItems = cookies.split(';').map(cookie => cookie.trim())
+  const jwtCookie = cookieItems.find(cookie => cookie.startsWith(`${JWT_COOKIE_NAME}=`))
+  
+  if (!jwtCookie) return null
+  return jwtCookie.split('=')[1]
 }

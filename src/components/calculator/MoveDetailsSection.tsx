@@ -40,7 +40,7 @@ export function MoveDetailsSection({
         <div className="flex items-center gap-2 border-b pb-2">
           <Label className="text-lg font-semibold text-gray-800">Move Size</Label>
           <TooltipProvider>
-            <Tooltip>
+            <Tooltip text="Select the size of your move based on number of rooms">
               <TooltipTrigger>
                 <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
               </TooltipTrigger>
@@ -87,7 +87,7 @@ export function MoveDetailsSection({
         <div className="flex justify-start gap-2 border-b pb-2">
           <Label className="text-lg font-semibold text-gray-800">Move Date</Label>
           <TooltipProvider>
-            <Tooltip>
+            <Tooltip text="Select your preferred moving date (weekend and peak season rates may apply)">
               <TooltipTrigger>
                 <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
               </TooltipTrigger>

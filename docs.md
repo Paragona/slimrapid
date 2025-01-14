@@ -1,192 +1,281 @@
-# Authentication and Profile System
+# RapidMove24 Documentation
 
-## Directory Structure
+## Project Structure
 
 ```
 src/
-├── app/
-│   ├── (auth)/                  # Auth group layout
-│   │   ├── layout.tsx           # Auth-specific layout (no header/footer)
-│   │   ├── login/              
-│   │   │   └── page.tsx         # Login page with redirect to '/'
+├── app/                    # Next.js app router pages
+│   ├── (auth)/            # Auth group layout
+│   │   ├── layout.tsx     # Auth-specific layout
+│   │   ├── login/        
 │   │   └── register/
-│   │       └── page.tsx         # Registration with optional profile fields
-│   └── profile/
-│       └── page.tsx             # Profile management page
-├── auth/
-│   └── AuthContext.tsx          # Authentication context and Firebase integration
-└── components/
-    ├── nav-user.tsx             # User navigation with profile link and logout
-    └── ui/
-        └── address-input.tsx     # Reusable address input component
+│   ├── calculator/        # Cost calculator
+│   ├── dashboard/         # User dashboard
+│   └── profile/           # Profile management
+├── auth/                  # Authentication
+│   └── AuthContext.tsx    # Auth context & Firebase
+├── components/           
+│   ├── calculator/        # Calculator components
+│   ├── home/             # Homepage components
+│   ├── layout/           # Layout components
+│   ├── maps/             # Map components
+│   ├── navigation/       # Navigation components
+│   └── ui/               # Reusable UI components
+├── config/               # App configuration
+│   ├── index.ts         # Central config export
+│   ├── navigation.ts    # Navigation structure
+│   ├── site.ts         # Site-wide settings
+│   ├── styles.ts       # Global styles
+│   └── theme.ts        # Theme configuration
+├── lib/                 # Utilities
+├── styles/             # Global styles
+└── types/              # TypeScript types
+    ├── auth.ts         # Auth types
+    ├── calculator.ts   # Calculator types
+    ├── config.ts       # Config types
+    ├── navigation.ts   # Navigation types
+    └── styles.ts       # Style types
 ```
 
-## Features
+## Configuration System
 
-### Authentication
-
-1. JWT Implementation
-   - JWT stored in HTTP-only cookies
-   - Payload structure:
-     ```typescript
-     {
-       uid: string      // Firebase user ID
-       email: string    // User's email
-       name?: string    // Optional user name
-       exp: number      // Expiration timestamp (7 days)
-     }
-     ```
-   - Token management:
-     - Created on login/registration
-     - Verified on app initialization
-     - Removed on logout
-     - Auto-expires after 7 days
-
-2. Login (`/login`)
-   - Email/password authentication
-   - Google sign-in
-   - Redirect to home page after successful login
-
-2. Registration (`/register`)
-   - Required fields:
-     - Email
-     - Password (min 6 characters)
-     - Password confirmation
-   - Optional fields:
-     - Name
-     - Mobile number (validated format)
-     - Address (using AddressInput component)
-     - Zipcode (validated format)
-   - Data saved to Firestore on successful registration
-
-3. Logout
-   - Available in user dropdown menu
-   - Redirects to login page
-
-### Profile Management
-
-1. Profile Page (`/profile`)
-   - Protected route (redirects to login if not authenticated)
-   - Edit user information:
-     - Name
-     - Mobile number
-     - Address
-     - Zipcode
-   - Real-time validation
-   - Success/error messages
-   - Data persistence in Firestore
-
-### Data Validation (Zod Schemas)
-
-1. Registration Schema
+### Site Configuration (`config/site.ts`)
 ```typescript
 {
-  email: string (email format)
-  password: string (min 6 chars)
-  confirmPassword: string (must match password)
-  name: string (optional)
-  mobile: string (regex: /^\+?[1-9]\d{1,14}$/) (optional)
-  address: string (optional)
-  zipcode: string (regex: /^\d{5}(-\d{4})?$/) (optional)
+  name: string           // Site name
+  description: string    // Site description
+  url: string           // Site URL
+  ogImage: string       // Open Graph image
+  links: {
+    twitter: string
+    github: string
+  }
 }
 ```
 
-2. Profile Schema
+### Theme Configuration (`config/theme.ts`)
 ```typescript
 {
-  name: string (optional)
-  mobile: string (regex: /^\+?[1-9]\d{1,14}$/) (optional)
-  address: string (optional)
-  zipcode: string (regex: /^\d{5}(-\d{4})?$/) (optional)
+  defaultTheme: 'light' | 'dark' | 'system'
+  themes: string[]      // Available themes
 }
 ```
 
-### Firestore Integration
-
-1. User Collection
+### Navigation Structure (`config/navigation.ts`)
 ```typescript
-users/{uid}/
+// Main navigation
+mainNavLinks: NavigationLink[]
+// Settings navigation
+settingsLinks: NavigationLink[]
+// Footer navigation
+footerLinks: {
+  company: NavigationLink[]
+  support: NavigationLink[]
+  legal: NavigationLink[]
+  social: NavigationLink[]
+}
+```
+
+### Style Configuration (`config/styles.ts`)
+```typescript
 {
+  nav: {
+    base: string
+    link: {
+      base: string
+      active: string
+      sidebar: string
+    }
+    icon: {
+      base: string
+      logo: string
+    }
+    container: {
+      base: string
+      settings: string
+    }
+  }
+  text: {
+    logo: string
+    title: string
+  }
+  layout: {
+    spacing: {
+      base: string
+      tight: string
+    }
+  }
+}
+```
+
+## Type System
+
+### Auth Types (`types/auth.ts`)
+```typescript
+interface User {
+  id: string
   email: string
   name?: string
-  mobile?: string
-  address?: string
-  zipcode?: string
-  createdAt: timestamp  // Set during registration
-  updatedAt: timestamp  // Updated when profile is modified
+  role?: string
+}
+
+interface AuthToken {
+  userId: string
+  email: string
+  exp: number
+  iat: number
+}
+
+type ProtectedRouteConfig = {
+  path: string
+  requireAuth: boolean
+  redirectTo?: string
 }
 ```
 
-### JWT Utilities (`src/lib/jwt.ts`)
+### Navigation Types (`types/navigation.ts`)
+```typescript
+interface NavLinkProps {
+  href: string
+  icon: LucideIcon
+  label: string
+  variant?: 'sidebar' | 'header' | 'default'
+}
 
-1. Client-side Functions
-   ```typescript
-   createToken(payload: JWTPayload): string
-   verifyToken(token: string): JWTPayload | null
-   getTokenFromStorage(): string | null
-   setTokenInStorage(token: string): void
-   removeTokenFromStorage(): void
-   ```
+interface NavigationLink {
+  href: string
+  icon: LucideIcon
+  label: string
+}
+```
 
-2. Server-side Functions
-   ```typescript
-   getServerSideToken(headers: Headers): Promise<string | null>
-   ```
+## Component Organization
 
-3. Cookie Configuration
-   - Secure flag enabled
-   - SameSite=strict
-   - 7-day expiration
-   - HTTP-only for security
+### Layout Components
+- `Header.tsx` - Main navigation header
+- `Footer.tsx` - Site footer with configurable sections
+- `Sidebar.tsx` - Navigation sidebar with collapsible support
+- `AppSidebar.tsx` - Application sidebar with mobile responsiveness
 
-4. Middleware Protection (`middleware.ts`)
-   - Protects routes: /profile, /dashboard
-   - Redirects to login if no valid token
-   - Handles auth-only routes (/login, /register)
-   - Preserves intended destination with 'from' parameter
+### Navigation Components
+- `NavMain.tsx` - Main navigation with icon support
+- `NavUser.tsx` - User navigation with profile display
+- `NavProjects.tsx` - Projects navigation
+- `NavSecondary.tsx` - Secondary navigation with custom styling
 
-### Components
+### Home Components
+- `Hero.tsx` - Hero section
+- `Features.tsx` - Features section
+- `HowItWorks.tsx` - How it works section
+- `Testimonials.tsx` - Testimonials section
 
-1. AddressInput
-   - Reusable component from calculator
-   - Props:
-     - id: string
-     - label: string
-     - value: string
-     - onChange: (value: string) => void
-     - onSelect: (address: string) => void
-     - suggestions: string[]
-     - error?: boolean
+### Map Components
+- `MapboxComponent.tsx` - Enhanced Mapbox integration with:
+  - Route visualization
+  - Distance calculation
+  - Custom markers
+  - Responsive controls
 
-2. NavUser
-   - User dropdown menu
-   - Profile link
-   - Logout functionality
-   - Displays user info:
-     - Email
-     - Name (if available)
-     - Avatar
+## UI Components
 
-### Layout System
+### Tooltip Component
+```typescript
+interface TooltipProps {
+  text: string
+  children: React.ReactNode
+}
+```
 
-1. Auth Layout (`(auth)/layout.tsx`)
-   - Clean layout without header/footer
-   - Centered content
-   - Used for login and registration pages
+### ScrollArea Component
+Provides custom scrolling functionality with:
+- Smooth scrolling
+- Custom scrollbar styling
+- Touch device support
 
-2. Main Layout (`layout.tsx`)
-   - Includes header and footer
-   - Side navigation
-   - Used for authenticated pages
+## Authentication System
 
-### Navigation Flow
+### Auth Context
+```typescript
+interface AuthContextType {
+  user: User | null
+  loading: boolean
+  signInWithGoogle: () => Promise<void>
+  signInWithEmail: (email: string, password: string) => Promise<void>
+  signOut: () => Promise<void>
+}
+```
 
-1. Unauthenticated Users
-   - Can access: /login, /register
-   - Redirected to /login for protected routes
+### Protected Routes
+- `/profile/*` - User profile and settings
+- `/calculator` - Cost calculator
+- `/dashboard` - User dashboard
 
-2. Authenticated Users
-   - Redirected to / after login
-   - Can access all routes
-   - Profile accessible via user dropdown
-   - Logout returns to login page
+### Auth-only Routes
+- `/login` - Login page
+- `/register` - Registration page
+
+## Best Practices
+
+### Component Organization
+1. Use named exports for components
+2. Keep components focused and single-responsibility
+3. Implement proper TypeScript types for props
+4. Use composition over inheritance
+
+### State Management
+1. Use AuthContext for authentication state
+2. Implement proper loading states
+3. Handle errors gracefully
+4. Use proper type safety
+
+### Styling
+1. Use consistent class naming
+2. Implement responsive design
+3. Follow the style configuration system
+4. Use CSS variables for theming
+
+### Performance
+1. Implement proper code splitting
+2. Use proper image optimization
+3. Implement proper caching strategies
+4. Use proper lazy loading
+
+## Usage Examples
+
+### Importing Components
+```typescript
+import { Header, Footer, Sidebar } from '@/components/layout'
+import { Hero, Features } from '@/components/home'
+import { MapboxComponent } from '@/components'
+```
+
+### Using Configuration
+```typescript
+import { siteConfig, navigationConfig, styleConfig } from '@/config'
+
+// Access site name
+console.log(siteConfig.name)
+
+// Access navigation
+console.log(navigationConfig.mainNavLinks)
+
+// Access styles
+console.log(styleConfig.nav.base)
+```
+
+### Using Auth Context
+```typescript
+import { useAuth } from '@/auth/AuthContext'
+
+function ProfileComponent() {
+  const { user, signOut } = useAuth()
+  
+  if (!user) return null
+  
+  return (
+    <div>
+      <p>Welcome, {user.name || user.email}</p>
+      <button onClick={signOut}>Sign Out</button>
+    </div>
+  )
+}
