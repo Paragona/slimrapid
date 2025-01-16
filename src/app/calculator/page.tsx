@@ -311,7 +311,6 @@ export default function CalculatorPage() {
                 <RouteMap
                   originCoordinates={originCoordinates}
                   destinationCoordinates={destinationCoordinates}
-                  onRouteCalculated={(distance) => calculateCost(distance)}
                 />
               </div>
             )}

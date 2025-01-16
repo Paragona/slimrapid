@@ -15,7 +15,6 @@ interface MapboxComponentProps {
     color?: string
   }>
   onMapLoad?: (map: mapboxgl.Map) => void
-  onRouteCalculated?: (distanceInKm: number) => void
 }
 
 export function MapboxComponent({ 
@@ -24,14 +23,14 @@ export function MapboxComponent({
   center = [-0.127758, 51.507351],
   zoom = 10,
   markers = [],
-  onMapLoad,
-  onRouteCalculated
+  onMapLoad
 }: MapboxComponentProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
 
+  // Initialize map only once
   useEffect(() => {
-    if (!mapContainer.current) return
+    if (!mapContainer.current || map.current) return
 
     try {
       map.current = new mapboxgl.Map({
@@ -45,36 +44,6 @@ export function MapboxComponent({
         if (onMapLoad && map.current) {
           onMapLoad(map.current)
         }
-
-        if (originCoordinates) {
-          new mapboxgl.Marker({
-            color: '#00FF00'
-          })
-            .setLngLat(originCoordinates)
-            .addTo(map.current!)
-        }
-
-        if (destinationCoordinates) {
-          new mapboxgl.Marker({
-            color: '#FF0000'
-          })
-            .setLngLat(destinationCoordinates)
-            .addTo(map.current!)
-        }
-
-        if (originCoordinates && destinationCoordinates && onRouteCalculated) {
-          // Calculate straight-line distance
-          const distance = calculateDistance(originCoordinates, destinationCoordinates)
-          onRouteCalculated(distance)
-        }
-
-        markers.forEach((marker) => {
-          new mapboxgl.Marker({
-            color: marker.color || '#FF0000'
-          })
-            .setLngLat(marker.coordinates)
-            .addTo(map.current!)
-        })
       })
     } catch (error) {
       console.error('Error initializing Mapbox map:', error)
@@ -82,27 +51,54 @@ export function MapboxComponent({
 
     return () => {
       map.current?.remove()
+      map.current = null
     }
-  }, [center, zoom, markers, onMapLoad, originCoordinates, destinationCoordinates, onRouteCalculated])
+  }, []) // Empty dependency array for one-time initialization
+
+  // Handle map view updates
+  useEffect(() => {
+    if (!map.current) return
+    map.current.setCenter(center)
+    map.current.setZoom(zoom)
+  }, [center, zoom])
+
+  // Handle markers
+  useEffect(() => {
+    if (!map.current) return
+
+    // Clear existing markers
+    const existingMarkers = document.getElementsByClassName('mapboxgl-marker')
+    while (existingMarkers[0]) {
+      existingMarkers[0].remove()
+    }
+
+    // Add origin marker
+    if (originCoordinates) {
+      new mapboxgl.Marker({
+        color: '#00FF00'
+      })
+        .setLngLat(originCoordinates)
+        .addTo(map.current)
+    }
+
+    // Add destination marker
+    if (destinationCoordinates) {
+      new mapboxgl.Marker({
+        color: '#FF0000'
+      })
+        .setLngLat(destinationCoordinates)
+        .addTo(map.current)
+    }
+
+    // Add additional markers
+    markers.forEach((marker) => {
+      new mapboxgl.Marker({
+        color: marker.color || '#FF0000'
+      })
+        .setLngLat(marker.coordinates)
+        .addTo(map.current!)
+    })
+  }, [originCoordinates, destinationCoordinates, markers])
 
   return <div ref={mapContainer} className="w-full h-full" />
-}
-
-function calculateDistance(coord1: [number, number], coord2: [number, number]): number {
-  const R = 6371 // Earth's radius in kilometers
-  const lat1 = toRad(coord1[1])
-  const lat2 = toRad(coord2[1])
-  const dLat = toRad(coord2[1] - coord1[1])
-  const dLon = toRad(coord2[0] - coord1[0])
-
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1) * Math.cos(lat2) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2)
-  
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  return R * c
-}
-
-function toRad(degrees: number): number {
-  return degrees * Math.PI / 180
 }

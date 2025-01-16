@@ -4,10 +4,9 @@ import { MapboxComponent } from '@/components/MapboxComponent';
 interface RouteMapProps {
   originCoordinates: [number, number] | undefined;
   destinationCoordinates: [number, number] | undefined;
-  onRouteCalculated: (distanceInKm: number) => void;
 }
 
-export function RouteMap({ originCoordinates, destinationCoordinates, onRouteCalculated }: RouteMapProps) {
+export function RouteMap({ originCoordinates, destinationCoordinates }: RouteMapProps) {
   if (!originCoordinates || !destinationCoordinates) return null;
 
   return (
@@ -20,7 +19,6 @@ export function RouteMap({ originCoordinates, destinationCoordinates, onRouteCal
         <MapboxComponent
           originCoordinates={originCoordinates}
           destinationCoordinates={destinationCoordinates}
-          onRouteCalculated={onRouteCalculated}
         />
       </div>
     </div>
