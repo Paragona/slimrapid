@@ -92,6 +92,8 @@
 - Header.module.css
 
 ### types/
+- types.md
+- All types are documented in types.md
 - auth.ts
 - calculator.ts
 - config.ts
@@ -137,3 +139,6 @@
       - esm/
         - index.esm.js
         - package.json
+
+## styles_src.md
+- All styles are documented in styles_src.md
