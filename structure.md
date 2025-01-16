@@ -12,6 +12,10 @@
   - page.tsx
 - profile/
   - page.tsx
+- lib/
+  - zod-types.ts
+- types/
+  - zod-schema.ts
 
 ### auth/
 - AuthContext.tsx
@@ -54,13 +58,32 @@
   - skeleton.tsx
   - tooltip.tsx
 
+### config/
+- config.ts
+- index.ts
+- navigation.ts
+- site.ts
+- styles.ts
+- theme.ts
+
 ### hooks/
 - use-mobile.tsx
 
 ### lib/
-- firebase.ts
+- api.ts
+- constants.ts
 - jwt.ts
+- mongodb.ts
+- query.ts
 - utils.ts
+- validation.ts
+- zod-types.ts
+
+### services/
+- calculator/
+  - calculator.service.ts
+  - cost.service.ts
+  - route.service.ts
 
 ### styles/
 - calendar.css
@@ -69,7 +92,14 @@
 - Header.module.css
 
 ### types/
+- auth.ts
 - calculator.ts
+- config.ts
+- index.ts
+- mapbox.ts
+- navigation.ts
+- styles.ts
+- zod-schema.ts
 
 ## public/
 - file.svg
