@@ -4,9 +4,22 @@ import { MapboxComponent } from '@/components/MapboxComponent';
 interface RouteMapProps {
   originCoordinates: [number, number] | undefined;
   destinationCoordinates: [number, number] | undefined;
+  mapStyle?: string;
+  routeColor?: string;
+  originMarkerColor?: string;
+  destinationMarkerColor?: string;
+  zoom?: number;
 }
 
-export function RouteMap({ originCoordinates, destinationCoordinates }: RouteMapProps) {
+export function RouteMap({ 
+  originCoordinates, 
+  destinationCoordinates,
+  mapStyle = 'streets-v12',
+  routeColor = '#3b82f6',
+  originMarkerColor = '#00FF00',
+  destinationMarkerColor = '#FF0000',
+  zoom = 4
+}: RouteMapProps) {
   if (!originCoordinates || !destinationCoordinates) return null;
 
   return (
@@ -19,6 +32,11 @@ export function RouteMap({ originCoordinates, destinationCoordinates }: RouteMap
         <MapboxComponent
           originCoordinates={originCoordinates}
           destinationCoordinates={destinationCoordinates}
+          style={mapStyle}
+          routeColor={routeColor}
+          originMarkerColor={originMarkerColor}
+          destinationMarkerColor={destinationMarkerColor}
+          zoom={zoom}
         />
       </div>
     </div>

@@ -3,17 +3,17 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Info } from 'lucide-react';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { MoveDetails } from '@/types/calculator';
+import { MoveDetails, MoveSize } from '@/types/calculator';
 import { cn } from "@/lib/utils";
 
 interface MoveSizeOption {
-  value: string;
+  value: MoveSize;
   label: string;
   description: string;
   icon?: React.ReactNode;
 }
 
-const moveSizeOptions: MoveSizeOption[] = [
+const moveSizeOptions: readonly MoveSizeOption[] = [
   { value: 'studio', label: 'Studio', description: 'Perfect for a studio apartment', icon: '🏠' },
   { value: '1bed', label: '1 Bedroom', description: 'Suitable for a 1 bedroom apartment', icon: '🛏️' },
   { value: '2bed', label: '2 Bedrooms', description: 'Ideal for a 2 bedroom home', icon: '🏡' },
@@ -62,7 +62,7 @@ export function MoveDetailsSection({
                   ? "bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-md translate-y-[-1px]"
                   : "hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-100 hover:border-blue-100 hover:shadow-sm"
               )}
-              onClick={() => onMoveDetailsChange({ ...moveDetails, moveSize: option.value })}
+              onClick={() => onMoveDetailsChange({ ...moveDetails, moveSize: option.value as MoveSize })}
             >
               <div className="flex items-center gap-3">
                 <span className="text-xl transition-transform duration-200 group-hover:scale-110">{option.icon}</span>

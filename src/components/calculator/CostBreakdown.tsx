@@ -1,5 +1,5 @@
 import { DollarSign, MapPin, Truck, Calendar as CalendarIcon } from 'lucide-react';
-import { CostBreakdownType } from '@/types/calculator';
+import { CostBreakdown as CostBreakdownType } from '@/types/calculator';
 
 interface CostBreakdownProps {
   costBreakdown: CostBreakdownType | null;

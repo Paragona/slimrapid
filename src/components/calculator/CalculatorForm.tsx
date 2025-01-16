@@ -9,7 +9,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { AddressInput } from "@/components/ui/address-input";
 import { MoveDetailsSection } from './MoveDetailsSection';
 
-import { MoveDetails } from '@/types/calculator';
+import { MoveDetails, AddressSuggestions } from '@/types/calculator';
 
 interface CalculatorFormProps {
   moveDetails: MoveDetails;
@@ -21,10 +21,7 @@ interface CalculatorFormProps {
   onCalculate: () => void;
   loading: boolean;
   error: string | null;
-  addressSuggestions: {
-    origin: string[];
-    destination: string[];
-  };
+  addressSuggestions: AddressSuggestions;
 }
 
 export function CalculatorForm({
@@ -140,12 +137,12 @@ export function CalculatorForm({
               <Input
                 type="number"
                 placeholder="Floor number"
-                value={moveDetails.floorNumber.origin}
+                value={moveDetails.origin.floorNumber}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  floorNumber: {
-                    ...moveDetails.floorNumber,
-                    origin: parseInt(e.target.value)
+                  origin: {
+                    ...moveDetails.origin,
+                    floorNumber: parseInt(e.target.value)
                   }
                 })}
                 min="0"
@@ -155,12 +152,12 @@ export function CalculatorForm({
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={moveDetails.hasElevator.origin}
+                checked={moveDetails.origin.hasElevator}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  hasElevator: {
-                    ...moveDetails.hasElevator,
-                    origin: e.target.checked
+                  origin: {
+                    ...moveDetails.origin,
+                    hasElevator: e.target.checked
                   }
                 })}
                 className="rounded"
@@ -180,12 +177,12 @@ export function CalculatorForm({
               <Input
                 type="number"
                 placeholder="Distance in feet"
-                value={moveDetails.parkingDistance.origin}
+                value={moveDetails.origin.parkingDistance}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  parkingDistance: {
-                    ...moveDetails.parkingDistance,
-                    origin: parseInt(e.target.value)
+                  origin: {
+                    ...moveDetails.origin,
+                    parkingDistance: parseInt(e.target.value)
                   }
                 })}
                 min="0"
@@ -224,12 +221,12 @@ export function CalculatorForm({
               <Input
                 type="number"
                 placeholder="Floor number"
-                value={moveDetails.floorNumber.destination}
+                value={moveDetails.destination.floorNumber}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  floorNumber: {
-                    ...moveDetails.floorNumber,
-                    destination: parseInt(e.target.value)
+                  destination: {
+                    ...moveDetails.destination,
+                    floorNumber: parseInt(e.target.value)
                   }
                 })}
                 min="0"
@@ -239,12 +236,12 @@ export function CalculatorForm({
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                checked={moveDetails.hasElevator.destination}
+                checked={moveDetails.destination.hasElevator}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  hasElevator: {
-                    ...moveDetails.hasElevator,
-                    destination: e.target.checked
+                  destination: {
+                    ...moveDetails.destination,
+                    hasElevator: e.target.checked
                   }
                 })}
                 className="rounded"
@@ -264,12 +261,12 @@ export function CalculatorForm({
               <Input
                 type="number"
                 placeholder="Distance in feet"
-                value={moveDetails.parkingDistance.destination}
+                value={moveDetails.destination.parkingDistance}
                 onChange={(e) => onMoveDetailsChange({
                   ...moveDetails,
-                  parkingDistance: {
-                    ...moveDetails.parkingDistance,
-                    destination: parseInt(e.target.value)
+                  destination: {
+                    ...moveDetails.destination,
+                    parkingDistance: parseInt(e.target.value)
                   }
                 })}
                 min="0"

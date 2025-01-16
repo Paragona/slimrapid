@@ -1,19 +1,21 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
-import { CostBreakdownType } from '@/types/calculator';
+import { CostBreakdown } from '@/types/calculator';
+import { forwardRef } from 'react';
 
 interface SummaryProps {
   origin: string;
   destination: string;
-  costBreakdown: CostBreakdownType | null;
+  costBreakdown: CostBreakdown | null;
 }
 
-export function Summary({ origin, destination, costBreakdown }: SummaryProps) {
+export const Summary = forwardRef<HTMLDivElement, SummaryProps>(
+  ({ origin, destination, costBreakdown }, ref) => {
   if (!origin || !destination) return null;
 
   return (
-    <div className="mt-6 border rounded-lg p-6 bg-gray-50">
+    <div ref={ref} className="mt-6 border rounded-lg p-6 bg-gray-50">
       <h3 className="text-lg font-semibold mb-4">Route Summary</h3>
       
       {/* Locations */}
@@ -38,4 +40,6 @@ export function Summary({ origin, destination, costBreakdown }: SummaryProps) {
       </div>
     </div>
   );
-}
+});
+
+Summary.displayName = 'Summary';
