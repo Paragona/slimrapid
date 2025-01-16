@@ -47,7 +47,7 @@ export function setTokenInStorage(token: string): void {
   Cookies.set(JWT_COOKIE_NAME, token, {
     expires: 7, // 7 days
     path: '/',
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'development',
     sameSite: 'lax'
   })
 }

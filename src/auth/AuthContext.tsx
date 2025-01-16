@@ -41,12 +41,24 @@ const AuthContext = createContext<AuthContextType>({
   error: null
 })
 
+const isDevelopment = process.env.NODE_ENV === 'development'
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (isDevelopment) {
+      setUser({
+        _id: 'dev-id',
+        email: 'dev@example.com',
+        name: 'Developer'
+      })
+      setLoading(false)
+      return
+    }
+
     const initAuth = async () => {
       try {
         const token = getTokenFromStorage()
@@ -72,6 +84,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signInWithEmail = async (email: string, password: string) => {
+    if (isDevelopment) {
+      setUser({
+        _id: 'dev-id',
+        email: 'dev@example.com',
+        name: 'Developer'
+      })
+      setLoading(false)
+      return
+    }
+
     try {
       setError(null)
       const response = await fetch('/api/auth/login', {
@@ -110,6 +132,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const registerWithEmail = async (email: string, password: string, profile?: UserProfile) => {
+    if (isDevelopment) {
+      setUser({
+        _id: 'dev-id',
+        email: 'dev@example.com',
+        name: 'Developer'
+      })
+      return
+    }
+
     try {
       setError(null)
       const response = await fetch('/api/auth/register', {
@@ -141,6 +172,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
+    if (isDevelopment) {
+      setUser(null)
+      return
+    }
+
     try {
       await fetch('/api/auth/logout', {
         method: 'POST'

@@ -2,6 +2,9 @@ import { useEffect, useRef } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
+// Ensure the access token is set correctly
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY || ''
+
 interface MapboxComponentProps {
   originCoordinates?: [number, number]
   destinationCoordinates?: [number, number]
@@ -30,48 +33,52 @@ export function MapboxComponent({
   useEffect(() => {
     if (!mapContainer.current) return
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: center,
-      zoom: zoom
-    })
-
-    map.current.on('load', () => {
-      if (onMapLoad && map.current) {
-        onMapLoad(map.current)
-      }
-
-      if (originCoordinates) {
-        new mapboxgl.Marker({
-          color: '#00FF00'
-        })
-          .setLngLat(originCoordinates)
-          .addTo(map.current!)
-      }
-
-      if (destinationCoordinates) {
-        new mapboxgl.Marker({
-          color: '#FF0000'
-        })
-          .setLngLat(destinationCoordinates)
-          .addTo(map.current!)
-      }
-
-      if (originCoordinates && destinationCoordinates && onRouteCalculated) {
-        // Calculate straight-line distance
-        const distance = calculateDistance(originCoordinates, destinationCoordinates)
-        onRouteCalculated(distance)
-      }
-
-      markers.forEach((marker) => {
-        new mapboxgl.Marker({
-          color: marker.color || '#FF0000'
-        })
-          .setLngLat(marker.coordinates)
-          .addTo(map.current!)
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: center,
+        zoom: zoom
       })
-    })
+
+      map.current.on('load', () => {
+        if (onMapLoad && map.current) {
+          onMapLoad(map.current)
+        }
+
+        if (originCoordinates) {
+          new mapboxgl.Marker({
+            color: '#00FF00'
+          })
+            .setLngLat(originCoordinates)
+            .addTo(map.current!)
+        }
+
+        if (destinationCoordinates) {
+          new mapboxgl.Marker({
+            color: '#FF0000'
+          })
+            .setLngLat(destinationCoordinates)
+            .addTo(map.current!)
+        }
+
+        if (originCoordinates && destinationCoordinates && onRouteCalculated) {
+          // Calculate straight-line distance
+          const distance = calculateDistance(originCoordinates, destinationCoordinates)
+          onRouteCalculated(distance)
+        }
+
+        markers.forEach((marker) => {
+          new mapboxgl.Marker({
+            color: marker.color || '#FF0000'
+          })
+            .setLngLat(marker.coordinates)
+            .addTo(map.current!)
+        })
+      })
+    } catch (error) {
+      console.error('Error initializing Mapbox map:', error)
+    }
 
     return () => {
       map.current?.remove()

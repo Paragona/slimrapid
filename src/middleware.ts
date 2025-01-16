@@ -8,11 +8,10 @@ const routeConfig: ProtectedRouteConfig[] = [
   // Auth-only routes (redirect to home if authenticated)
   { path: '/login', requireAuth: false, redirectTo: '/' },
   { path: '/register', requireAuth: false, redirectTo: '/' },
-  
+
   // Protected routes (redirect to login if not authenticated)
-  { path: '/profile', requireAuth: true, redirectTo: '/login' },
-  { path: '/calculator', requireAuth: true, redirectTo: '/login' },
-  { path: '/dashboard', requireAuth: true, redirectTo: '/login' },
+  { path: '/profile', requireAuth: false, redirectTo: '/login' },
+
 ]
 
 export async function middleware(request: NextRequest) {
