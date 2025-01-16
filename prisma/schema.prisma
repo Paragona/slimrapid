@@ -13,42 +13,138 @@ datasource db {
   url      = env("DATABASE_URL") // Připojovací řetězec k databázi
 }
 
+/// Represents a user in the system
 model User {
   id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
-  password  String
-  name      String?
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255) // Hashed password
+  name      String?  @db.VarChar(100)
   role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  routes    Route[]
-  mapSettings MapSettings[]
+  // Relations
+  routes      Route[]       // Routes created by the user
+  moves       Move[]        // Moves requested by the user
+  mapSettings MapSettings[] // User's map preferences
+
+  @@index([email])
+  @@index([role])
 }
 
+/// User role for access control
 enum Role {
-  USER
-  ADMIN
+  USER  // Regular user
+  ADMIN // Administrator with extended privileges
 }
 
+/// Size options for moves, matching the frontend MoveSize type
+enum MoveSize {
+  STUDIO    // Studio apartment
+  ONE_BED   // 1 bedroom
+  TWO_BED   // 2 bedrooms
+  THREE_BED // 3 bedrooms
+  FOUR_BED  // 4 bedrooms
+}
+
+/// Status of a move request
+enum MoveStatus {
+  PENDING    // Initial state when move is created
+  CONFIRMED  // Move has been confirmed by admin
+  COMPLETED  // Move has been completed
+  CANCELLED  // Move has been cancelled
+}
+
+/// Represents a moving request from one location to another
+model Move {
+  id            String     @id @default(uuid()) @db.Uuid
+  userId        String     @db.Uuid
+  user          User       @relation(fields: [userId], references: [id])
+  moveSize      MoveSize   // Size of the move
+  moveDate      DateTime   // Scheduled date for the move
+  status        MoveStatus @default(PENDING)
+  route         Route?    @relation(fields: [routeId], references: [id])
+  routeId       String?   @db.Uuid
+  origin        Location  @relation("MoveOrigin", fields: [originId], references: [id])
+  originId      String    @db.Uuid
+  destination   Location  @relation("MoveDestination", fields: [destinationId], references: [id])
+  destinationId String    @db.Uuid
+  cost          Cost?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([routeId])
+}
+
+/// Represents a physical location with address and coordinates
+model Location {
+  id              String   @id @default(uuid()) @db.Uuid
+  address         String   @db.Text // Full address can be long
+  latitude        Float    @db.DoublePrecision // More precise than Float
+  longitude       Float    @db.DoublePrecision
+  floorNumber     Int      @default(0) @db.SmallInt
+  hasElevator     Boolean  @default(false)
+  parkingDistance Int      @default(0) @db.SmallInt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  originMoves     Move[]   @relation("MoveOrigin")
+  destinationMoves Move[]  @relation("MoveDestination")
+
+  @@index([latitude, longitude])
+  @@index([address])
+}
+
+/// Represents a calculated route between two locations
 model Route {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  origin      String
-  destination String
-  distance    Float
-  duration    Float
-  routeData   Json
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @db.Uuid
+  user          User     @relation(fields: [userId], references: [id])
+  distance      Float    @db.DoublePrecision // Distance in kilometers
+  duration      Float    @db.DoublePrecision // Duration in minutes
+  geometry      Json     // GeoJSON LineString for route visualization
+  moves         Move[]   // Moves that use this route
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([distance]) // Useful for querying routes by distance
 }
 
+/// Represents the cost breakdown for a move
+model Cost {
+  id               String   @id @default(uuid()) @db.Uuid
+  moveId           String   @unique @db.Uuid
+  move             Move     @relation(fields: [moveId], references: [id])
+  baseCost         Float    @db.DoublePrecision
+  distanceCost     Float    @db.DoublePrecision
+  floorCost        Float    @db.DoublePrecision
+  parkingCost      Float    @db.DoublePrecision
+  weekendSurcharge Float    @db.DoublePrecision
+  seasonalSurcharge Float   @db.DoublePrecision
+  total            Float    @db.DoublePrecision
+  currency         String   @default("USD") @db.VarChar(3)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([moveId])
+  @@index([total]) // Useful for querying moves by cost
+}
+
+/// User preferences for map display
 model MapSettings {
-  id           String   @id @default(uuid()) @db.Uuid
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  mapStyle     String   @default("streets-v12")
-  zoomLevel    Int      @default(4)
-  routeColor   String   @default("#3b82f6")
-  markerColor  String   @default("#FF0000")
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @db.Uuid
+  user                  User     @relation(fields: [userId], references: [id])
+  style                 String   @default("streets-v12") @db.VarChar(50)
+  zoom                  Int      @default(4) @db.SmallInt
+  routeColor           String   @default("#3b82f6") @db.VarChar(7)
+  originMarkerColor    String   @default("#00FF00") @db.VarChar(7)
+  destinationMarkerColor String  @default("#FF0000") @db.VarChar(7)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([userId])
 }

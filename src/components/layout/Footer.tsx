@@ -20,7 +20,7 @@ export default function Footer() {
   )
 }
 
-function FooterSection({ title, links }: { title: string; links: Array<{ href: string; label: string; icon?: any }> }) {
+function FooterSection({ title, links }: { title: string; links: Array<{ href: string; label: string; icon?: React.ComponentType }> }) {
   return (
     <div className="space-y-3">
       <h4 className={styles.text.title}>{title}</h4>

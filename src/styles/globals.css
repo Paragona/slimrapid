@@ -55,8 +55,8 @@
   --rdp-background-color-dark: hsl(var(--primary) / 0.2);
   --rdp-outline: 2px solid var(--rdp-accent-color);
   --rdp-outline-selected: 2px solid var(--rdp-accent-color);
-  margin: 0;
-}
+  margin: 8px;
+} 
 
 .rdp-months {
   justify-content: center;

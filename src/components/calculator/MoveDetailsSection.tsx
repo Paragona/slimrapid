@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Info } from 'lucide-react';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import { MoveDetails, MoveSize } from '@/types/calculator';
 import { cn } from "@/lib/utils";
 
@@ -39,16 +39,9 @@ export function MoveDetailsSection({
       <div className="space-y-6">
         <div className="flex items-center gap-2 border-b pb-2">
           <Label className="text-lg font-semibold text-gray-800">Move Size</Label>
-          <TooltipProvider>
-            <Tooltip text="Select the size of your move based on number of rooms">
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Select the size of your move based on number of rooms
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip text="Select the size of your move based on number of rooms">
+            <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
+          </Tooltip>
         </div>
         <div className="grid grid-cols-1 gap-2">
           {moveSizeOptions.map((option) => (
@@ -86,16 +79,9 @@ export function MoveDetailsSection({
       <div className="space-y-6">
         <div className="flex justify-start gap-2 border-b pb-2">
           <Label className="text-lg font-semibold text-gray-800">Move Date</Label>
-          <TooltipProvider>
-            <Tooltip text="Select your preferred moving date (weekend and peak season rates may apply)">
-              <TooltipTrigger>
-                <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
-              </TooltipTrigger>
-              <TooltipContent>
-                Select your preferred moving date (weekend and peak season rates may apply)
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip text="Select your preferred moving date (weekend and peak season rates may apply)">
+            <Info className="w-4 h-4 text-blue-400 cursor-help hover:text-blue-500 transition-colors" />
+          </Tooltip>
         </div>
         <Calendar
           value={moveDetails.moveDate instanceof Date ? moveDetails.moveDate : new Date()}

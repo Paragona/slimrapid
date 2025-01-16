@@ -1,128 +1,110 @@
-'use client';
+import React, { useEffect, useRef } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-import { useEffect, useRef } from 'react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+// Nastavení Mapbox API klíče
+mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_API_KEY || '';
 
 interface MapboxComponentProps {
   originCoordinates?: [number, number];
   destinationCoordinates?: [number, number];
-  onRouteCalculated?: (distance: number) => void;
+  center?: [number, number];
+  zoom?: number;
+  className?: string;
+  routeColor?: string;
+  style?: string;
+  originMarkerColor?: string;
+  destinationMarkerColor?: string;
 }
-
-export default function MapboxComponent({
+const MapboxComponent = ({
   originCoordinates,
   destinationCoordinates,
-  onRouteCalculated
-}: MapboxComponentProps) {
+  center = [-98.5795, 39.8283], // Centrum USA
+  zoom = 4,
+  className,
+  routeColor = '#3b82f6',
+}: MapboxComponentProps): React.ReactElement => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
-
-    map.current = new maplibregl.Map({
+    if (!mapContainer.current || map.current) return;
+  
+    map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      center: [-98.5795, 39.8283], // Center of USA
-      zoom: 4,
-      style: {
-        version: 8,
-        sources: {
-          'osm-tiles': {
-            type: 'raster',
-            tiles: [
-              'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
-            ],
-            tileSize: 256,
-            attribution: ' OpenStreetMap contributors'
-          },
-          'route-geometry': {
-            type: 'geojson',
-            data: {
-              type: "LineString",
-              coordinates: [],
-            },
-          },
-        },
-        layers: [{
-          id: 'tiles',
-          type: 'raster',
-          source: 'osm-tiles',
-        }, {
-          id: 'route-geometry',
-          type: 'line',
-          source: 'route-geometry',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#3b82f6',
-            'line-width': 4
-          }
-        }]
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: center,
+      zoom: zoom,
+    });
+
+     map.current.on('load', () => {
+      if (!map.current) return; // Ochrana před null
+      if (originCoordinates) {
+        new mapboxgl.Marker({ color: '#00FF00' })
+          .setLngLat(originCoordinates)
+          .addTo(map.current);
+      }
+  
+      if (destinationCoordinates) {
+        new mapboxgl.Marker({ color: '#FF0000' })
+          .setLngLat(destinationCoordinates)
+          .addTo(map.current);
+      }
+
+      if (originCoordinates && destinationCoordinates) {
+        fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${originCoordinates.join(
+            ','
+          )};${destinationCoordinates.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const route = data.routes[0].geometry;
+
+            // Přidání zdroje dat pro trasu
+            map.current?.addSource('route', {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates: route.coordinates,
+                },
+                properties: {}, // Povinné pole, může zůstat prázdné
+              },
+            });
+
+            // Přidání vrstvy pro trasu
+            map.current?.addLayer({
+              id: 'route',
+              type: 'line',
+              source: 'route',
+              paint: {
+                'line-color': routeColor,
+                'line-width': 4,
+              },
+            });
+
+            // Vytvoření hranic mapy na základě souřadnic trasy
+            const bounds = route.coordinates.reduce(
+              (bounds: mapboxgl.LngLatBounds, coord: [number, number]) =>
+                bounds.extend(coord as mapboxgl.LngLatLike),
+              new mapboxgl.LngLatBounds(
+                route.coordinates[0] as mapboxgl.LngLatLike,
+                route.coordinates[0] as mapboxgl.LngLatLike
+              )
+            );
+
+            map.current?.fitBounds(bounds, { padding: 50 });
+          })
+          .catch((err) => console.error('Chyba při načítání trasy:', err));
       }
     });
 
-    return () => {
-      map.current?.remove();
-    };
-  }, []);
+    return () => map.current?.remove();
+  }, [center, zoom, originCoordinates, destinationCoordinates, routeColor]);
 
-  useEffect(() => {
-    if (!map.current || !originCoordinates || !destinationCoordinates) return;
+  return <div ref={mapContainer} className={className || 'w-full h-full'} />;
+};
 
-    const fetchRoute = async () => {
-      try {
-        // Using OSRM demo server - for production, you should host your own or use a commercial service
-        const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${originCoordinates[0]},${originCoordinates[1]};${destinationCoordinates[0]},${destinationCoordinates[1]}?overview=full&geometries=geojson`
-        );
-        
-        const data = await response.json();
-        
-        const mapInstance = map.current;
-        if (data.routes && data.routes[0] && mapInstance) {
-          const route = data.routes[0];
-          
-          // Update the route on the map
-          const source = mapInstance.getSource('route-geometry');
-          if (source) {
-            (source as maplibregl.GeoJSONSource).setData({
-              type: 'Feature',
-              properties: {},
-              geometry: route.geometry
-            });
-          }
-
-          // Calculate distance in kilometers
-          const distanceKm = route.distance / 1000;
-          if (onRouteCalculated) {
-            onRouteCalculated(distanceKm);
-          }
-
-          // Fit the map to the route bounds with padding
-          const coordinates = route.geometry.coordinates;
-          const bounds = coordinates.reduce((bounds: maplibregl.LngLatBounds, coord: [number, number]) => {
-            return bounds.extend(coord);
-          }, new maplibregl.LngLatBounds(coordinates[0] as [number, number], coordinates[0] as [number, number]));
-
-          mapInstance.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching route:', error);
-      }
-    };
-
-    fetchRoute();
-  }, [originCoordinates, destinationCoordinates, onRouteCalculated]);
-
-  return (
-    <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
-  );
-}
+export { MapboxComponent };

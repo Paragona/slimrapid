@@ -10,6 +10,7 @@ export interface User {
   email: string
   name?: string
   role?: string
+  photoURL?: string
 }
 
 export type ProtectedRouteConfig = {

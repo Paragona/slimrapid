@@ -38,7 +38,7 @@ export function NavLink({
       )}
     >
       {showIcon && Icon && <Icon className={styles.nav.icon.base} />}
-      <span>{label}</span>
+      <span className="hidden md:inline">{label}</span>
     </Link>
   )
 }

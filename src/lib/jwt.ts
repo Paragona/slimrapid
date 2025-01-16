@@ -25,10 +25,11 @@ export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret)
     if (typeof payload === 'object' && payload && 'uid' in payload && 'email' in payload) {
+      // TypeScript does not narrow the type of payload here
       return {
-        uid: String(payload.uid),
-        email: String(payload.email),
-        name: payload.name ? String(payload.name) : undefined
+        uid: String(payload.uid), // TypeScript throws an error here
+        email: String(payload.email), // TypeScript throws an error here
+        name: payload.name ? String(payload.name) : undefined // TypeScript throws an error here
       }
     }
     return null

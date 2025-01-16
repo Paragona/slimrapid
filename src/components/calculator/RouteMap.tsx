@@ -1,20 +1,17 @@
 import { MapPin } from 'lucide-react';
-import { MapboxComponent } from '@/components/MapboxComponent';
+import { MapboxComponent } from '@/components/maps/MapboxComponent';
 
-interface RouteMapProps {
+import { MapSettings } from '@/types/calculator';
+
+interface RouteMapProps extends Partial<MapSettings> {
   originCoordinates: [number, number] | undefined;
   destinationCoordinates: [number, number] | undefined;
-  mapStyle?: string;
-  routeColor?: string;
-  originMarkerColor?: string;
-  destinationMarkerColor?: string;
-  zoom?: number;
 }
 
 export function RouteMap({ 
   originCoordinates, 
   destinationCoordinates,
-  mapStyle = 'streets-v12',
+  style = 'streets-v12',
   routeColor = '#3b82f6',
   originMarkerColor = '#00FF00',
   destinationMarkerColor = '#FF0000',
@@ -32,7 +29,7 @@ export function RouteMap({
         <MapboxComponent
           originCoordinates={originCoordinates}
           destinationCoordinates={destinationCoordinates}
-          style={mapStyle}
+          style={style}
           routeColor={routeColor}
           originMarkerColor={originMarkerColor}
           destinationMarkerColor={destinationMarkerColor}

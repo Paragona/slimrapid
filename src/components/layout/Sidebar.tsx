@@ -9,17 +9,17 @@ import { MapPin, LogIn, LogOut } from "lucide-react"
 import Link from "next/link"
 import { styles } from "@/config/styles"
 import cn from "classnames"
-import { StyleConfig, NavigationLink } from "@/types"
+import { NavigationLink } from "@/types"
 
 export default function Sidebar() {
   const { user, logout } = useAuth()
   const isLoggedIn = !!user
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-40 w-16 md:w-40 lg:w-52 bg-background border-r flex flex-col">
-      <div className="flex-1 py-4">
+    <aside className="fixed left-0 top-0 bottom-0 z-40 w-10 md:w-40 lg:w-52 bg-background border-r flex flex-col">
+      <div className="flex-1 py-1 md:py-4">
         {/* Logo */}
-        <div className="px-4 mb-6 pt-2">
+        <div className="px-1 md:px-4 mb-1 md:mb-6">
           <Link href="/" className={cn(styles.nav.base, "hover:text-primary")}>
             <MapPin className={styles.nav.icon.logo} />
             <span className={styles.text.logo}>
@@ -56,10 +56,10 @@ export default function Sidebar() {
       </div>
 
       {/* Auth Button */}
-      <div className="p-4 border-t">
+      <div className="p-1 md:p-4 border-t">
         <Button
-          variant="outline"
-          className="w-full justify-start gap-2"
+          variant="ghost"
+          className="w-full h-8 md:h-10 justify-start gap-1 md:gap-2 px-1 md:px-4"
           onClick={isLoggedIn ? logout : () => {}}
         >
           {isLoggedIn ? (

@@ -136,7 +136,7 @@ export default function CalculatorPage() {
                 <RouteMap
                   originCoordinates={originCoordinates}
                   destinationCoordinates={destinationCoordinates}
-                  mapStyle={mapSettings.style}
+                  style={mapSettings.style}
                   routeColor={mapSettings.routeColor}
                   originMarkerColor={mapSettings.originMarkerColor}
                   destinationMarkerColor={mapSettings.destinationMarkerColor}

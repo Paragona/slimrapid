@@ -1,2 +1,1 @@
-export { default as MapComponent } from './MapComponent';
-export { default as MapboxComponent } from './MapboxComponent';
+export { MapboxComponent } from './MapboxComponent';

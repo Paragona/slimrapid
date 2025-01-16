@@ -74,7 +74,7 @@ export interface AddressSuggestions {
  */
 export interface MapSettings {
   /** Mapbox style identifier */
-  style: 'streets-v12' | 'satellite-v9' | 'light-v11' | 'dark-v11';
+  style: import('./mapbox').MapboxStyle;
   /** Color for the route line */
   routeColor: string;
   /** Color for origin marker */

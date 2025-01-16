@@ -6,9 +6,8 @@ import { ProtectedRouteConfig } from './types/auth'
 // Route configuration for authentication and protection
 const routeConfig: ProtectedRouteConfig[] = [
   // Auth-only routes (redirect to home if authenticated)
-  { path: '/login', requireAuth: false, redirectTo: '/' },
-  { path: '/register', requireAuth: false, redirectTo: '/' },
 
+  
   // Protected routes (redirect to login if not authenticated)
   { path: '/profile', requireAuth: false, redirectTo: '/login' },
 
