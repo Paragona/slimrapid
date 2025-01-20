@@ -1,6 +1,39 @@
 import { MapSettings } from '@/types/calculator';
 
 /**
+ * Fetch route coordinates between two points using OSRM
+ */
+export async function fetchRoute(
+  originCoords: [number, number],
+  destinationCoords: [number, number]
+): Promise<[number, number][]> {
+  const [originLng, originLat] = originCoords;
+  const [destLng, destLat] = destinationCoords;
+  
+  try {
+    const response = await fetch(
+      `https://router.project-osrm.org/route/v1/driving/${originLng},${originLat};${destLng},${destLat}?overview=full&geometries=geojson`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch route');
+    }
+
+    const data = await response.json();
+    
+    if (data.code !== 'Ok' || !data.routes?.[0]?.geometry?.coordinates) {
+      throw new Error('Invalid route data received');
+    }
+
+    return data.routes[0].geometry.coordinates as [number, number][];
+  } catch (error) {
+    console.error('Error fetching route:', error);
+    // Fallback to direct line if route fetching fails
+    return [originCoords, destinationCoords];
+  }
+}
+
+/**
  * Default map settings
  */
 export const DEFAULT_MAP_SETTINGS: MapSettings = {

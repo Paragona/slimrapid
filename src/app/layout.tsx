@@ -2,7 +2,7 @@ import { Inter } from "next/font/google"
 import "@/styles/globals.css"
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
-//import { AuthProvider } from "@/auth/AuthContext"//*
+import { AuthProvider } from "@/auth/AuthContext"
 import { Sidebar } from "@/components/layout"
 import { Footer } from "@/components/layout"
 
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("min-h-screen bg-background antialiased", inter.className)}>
-      
+        <AuthProvider>
           <TooltipProvider>
             <div className="min-h-screen relative">
               <Sidebar />
@@ -29,7 +29,7 @@ export default function RootLayout({
               <Footer />
             </div>
           </TooltipProvider>
-       
+        </AuthProvider>
       </body>
     </html>
   )

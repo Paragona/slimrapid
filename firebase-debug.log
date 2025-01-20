@@ -1,0 +1,103 @@
+[debug] [2025-01-20T03:15:13.490Z] ----------------------------------------------------------------------
+[debug] [2025-01-20T03:15:13.492Z] Command:       /home/linuxbrew/.linuxbrew/Cellar/node/23.5.0/bin/node /home/linuxbrew/.linuxbrew/bin/firebase init
+[debug] [2025-01-20T03:15:13.493Z] CLI Version:   13.29.1
+[debug] [2025-01-20T03:15:13.493Z] Platform:      linux
+[debug] [2025-01-20T03:15:13.493Z] Node Version:  v23.5.0
+[debug] [2025-01-20T03:15:13.493Z] Time:          Mon Jan 20 2025 04:15:13 GMT+0100 (Central European Standard Time)
+[debug] [2025-01-20T03:15:13.493Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-01-20T03:15:13.498Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-20T03:15:14.072Z] Running auto auth
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/lol/Desktop/destinopia/turbo-ecom-main/destinopia
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-01-20T03:15:41.345Z] No OAuth tokens found
+[debug] [2025-01-20T03:15:41.351Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2025-01-20T03:15:41.510Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 403
+[debug] [2025-01-20T03:15:41.511Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2025-01-20T03:15:41.514Z] Request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 had HTTP Error: 403, Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds .
+[debug] [2025-01-20T03:15:41.516Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects?pageSize=100 had HTTP Error: 403, Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds .
+    at responseToError (/home/linuxbrew/.linuxbrew/lib/node_modules/firebase-tools/lib/responseToError.js:52:12)
+    at RetryOperation._fn (/home/linuxbrew/.linuxbrew/lib/node_modules/firebase-tools/lib/apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.
+[debug] [2025-01-20T03:15:53.430Z] ----------------------------------------------------------------------
+[debug] [2025-01-20T03:15:53.431Z] Command:       /home/linuxbrew/.linuxbrew/Cellar/node/23.5.0/bin/node /home/linuxbrew/.linuxbrew/bin/firebase init
+[debug] [2025-01-20T03:15:53.432Z] CLI Version:   13.29.1
+[debug] [2025-01-20T03:15:53.432Z] Platform:      linux
+[debug] [2025-01-20T03:15:53.432Z] Node Version:  v23.5.0
+[debug] [2025-01-20T03:15:53.432Z] Time:          Mon Jan 20 2025 04:15:53 GMT+0100 (Central European Standard Time)
+[debug] [2025-01-20T03:15:53.432Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-01-20T03:15:53.436Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-20T03:15:54.001Z] Running auto auth
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /home/lol/Desktop/destinopia/turbo-ecom-main/destinopia
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[info] i  If you want to create a project in a Google Cloud organization or folder, please use "firebase projects:create" instead, and return to this command when you've created the project. 
+[debug] [2025-01-20T03:16:29.803Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:29.809Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects [none]
+[debug] [2025-01-20T03:16:29.809Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"projectId":"rapidmove","name":"rapidmove"}
+[debug] [2025-01-20T03:16:30.729Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects 200
+[debug] [2025-01-20T03:16:30.730Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects {"name":"operations/cp.5549516572864539605"}
+[debug] [2025-01-20T03:16:30.733Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:30.733Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 [none]
+[debug] [2025-01-20T03:16:31.567Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 200
+[debug] [2025-01-20T03:16:31.567Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 {"name":"operations/cp.5549516572864539605"}
+[debug] [2025-01-20T03:16:32.068Z] [Project Creation Poller] Retrying task index 0
+[debug] [2025-01-20T03:16:32.068Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:32.068Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 [none]
+[debug] [2025-01-20T03:16:32.365Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 200
+[debug] [2025-01-20T03:16:32.365Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 {"name":"operations/cp.5549516572864539605"}
+[debug] [2025-01-20T03:16:33.365Z] [Project Creation Poller] Retrying task index 0
+[debug] [2025-01-20T03:16:33.366Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:33.367Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 [none]
+[debug] [2025-01-20T03:16:33.684Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 200
+[debug] [2025-01-20T03:16:33.685Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 {"name":"operations/cp.5549516572864539605","metadata":{"@type":"type.googleapis.com/google.cloudresourcemanager.v1.ProjectCreationStatus","gettable":true}}
+[debug] [2025-01-20T03:16:35.686Z] [Project Creation Poller] Retrying task index 0
+[debug] [2025-01-20T03:16:35.687Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:35.687Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 [none]
+[debug] [2025-01-20T03:16:35.989Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 200
+[debug] [2025-01-20T03:16:35.989Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/operations/cp.5549516572864539605 {"name":"operations/cp.5549516572864539605","metadata":{"@type":"type.googleapis.com/google.cloudresourcemanager.v1.ProjectCreationStatus","gettable":true,"ready":true},"done":true,"response":{"@type":"type.googleapis.com/google.cloudresourcemanager.v1.Project","projectNumber":"868011171208","projectId":"rapidmove","lifecycleState":"ACTIVE","name":"rapidmove","createTime":"2025-01-20T03:16:32.509847Z"}}
+[debug] [2025-01-20T03:16:35.990Z] No OAuth tokens found
+[debug] [2025-01-20T03:16:35.991Z] >>> [apiv2][query] POST https://firebase.googleapis.com/v1beta1/projects/rapidmove:addFirebase [none]
+[debug] [2025-01-20T03:16:36.494Z] <<< [apiv2][status] POST https://firebase.googleapis.com/v1beta1/projects/rapidmove:addFirebase 403
+[debug] [2025-01-20T03:16:36.495Z] <<< [apiv2][body] POST https://firebase.googleapis.com/v1beta1/projects/rapidmove:addFirebase {"error":{"code":403,"message":"Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds .","status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"service":"firebase.googleapis.com","consumer":"projects/32555940559"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds ."}]}}
+[debug] [2025-01-20T03:16:36.498Z] Request to https://firebase.googleapis.com/v1beta1/projects/rapidmove:addFirebase had HTTP Error: 403, Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds .
+[debug] [2025-01-20T03:16:36.501Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/rapidmove:addFirebase had HTTP Error: 403, Your application is authenticating by using local Application Default Credentials. The firebase.googleapis.com API requires a quota project, which is not set by default. To learn how to set your quota project, see https://cloud.google.com/docs/authentication/adc-troubleshooting/user-creds .
+    at responseToError (/home/linuxbrew/.linuxbrew/lib/node_modules/firebase-tools/lib/responseToError.js:52:12)
+    at RetryOperation._fn (/home/linuxbrew/.linuxbrew/lib/node_modules/firebase-tools/lib/apiv2.js:312:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[error] 
+[error] Error: Failed to add Firebase to Google Cloud Platform project. See firebase-debug.log for more info.

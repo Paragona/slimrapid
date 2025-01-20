@@ -1,5 +1,5 @@
 import { NavigationLink } from '@/types'
-import { NavLink } from '@/components/ui/nav-link'
+import { NavLink } from '@/components/navigation/nav-link'
 import { cn } from '@/lib/utils'
 
 interface NavSecondaryProps {

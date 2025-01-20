@@ -1,4 +1,4 @@
-import { NavLink } from "./nav-link"
+import { NavLink } from "../navigation/nav-link"
 import { styles } from "@/config/styles"
 
 interface LinkGroupProps {

@@ -1,5 +1,5 @@
 import { NavigationLink } from '@/types'
-import { NavLink } from '@/components/ui/nav-link'
+import { NavLink } from '@/components/navigation/nav-link'
 
 interface NavProjectsProps {
   projects: NavigationLink[]

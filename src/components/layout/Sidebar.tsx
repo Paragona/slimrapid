@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useAuth } from "@/auth/AuthContext"
 import { Button } from "@/components/ui/button"
-import { NavLink } from "@/components/ui/nav-link"
+import { NavLink } from "@/components/navigation/nav-link"
 import { mainNavLinks, settingsLinks } from "@/config/navigation"
 import { MapPin, LogIn, LogOut } from "lucide-react"
 import Link from "next/link"

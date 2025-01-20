@@ -4,15 +4,44 @@
 export type MoveSize = 'studio' | '1bed' | '2bed' | '3bed' | '4bed';
 
 /**
+ * Building type options
+ */
+export type BuildingType = 'house' | 'apartment' | 'office' | 'storage';
+
+/**
+ * Parking access options
+ */
+export type ParkingAccess = 'close' | 'medium' | 'far';
+
+/**
+ * Access restrictions that may affect the move
+ */
+export interface AccessRestrictions {
+  /** Whether there are time restrictions for moving */
+  hasTimeRestrictions: boolean;
+  /** Whether permits are required */
+  requiresPermits: boolean;
+  /** Whether elevator booking is required */
+  requiresElevatorBooking: boolean;
+  /** Whether COI (Certificate of Insurance) is required */
+  requiresCOI: boolean;
+}
+
+/**
  * Location-specific details that are common between origin and destination
  */
 export interface LocationDetails {
+  parkingDistance: any;
+  /** Type of building */
+  buildingType: BuildingType;
   /** Floor number of the building (0 for ground floor) */
   floorNumber: number;
   /** Whether the building has a working elevator */
   hasElevator: boolean;
-  /** Distance in feet from parking to entrance */
-  parkingDistance: number;
+  /** Distance category from parking to entrance */
+  parkingAccess: ParkingAccess;
+  /** Access restrictions for this location */
+  restrictions: AccessRestrictions;
 }
 
 /**

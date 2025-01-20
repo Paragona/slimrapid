@@ -1,5 +1,5 @@
 import { MapPin } from 'lucide-react';
-import { MapboxComponent } from '@/components/maps/MapboxComponent';
+import LeafletMapComponent from '@/components/maps/LeafletMapComponent';
 
 import { MapSettings } from '@/types/calculator';
 
@@ -11,10 +11,7 @@ interface RouteMapProps extends Partial<MapSettings> {
 export function RouteMap({ 
   originCoordinates, 
   destinationCoordinates,
-  style = 'streets-v12',
   routeColor = '#3b82f6',
-  originMarkerColor = '#00FF00',
-  destinationMarkerColor = '#FF0000',
   zoom = 4
 }: RouteMapProps) {
   if (!originCoordinates || !destinationCoordinates) return null;
@@ -26,14 +23,13 @@ export function RouteMap({
         <h3 className="text-lg font-semibold">Route Map</h3>
       </div>
       <div className="h-[400px] w-full rounded-lg overflow-hidden border border-blue-200">
-        <MapboxComponent
+        <LeafletMapComponent
           originCoordinates={originCoordinates}
           destinationCoordinates={destinationCoordinates}
-          style={style}
+          style={JSON.stringify({ zIndex: 1 })}
           routeColor={routeColor}
-          originMarkerColor={originMarkerColor}
-          destinationMarkerColor={destinationMarkerColor}
           zoom={zoom}
+          className="w-full h-full"
         />
       </div>
     </div>

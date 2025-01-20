@@ -52,7 +52,7 @@ export function MoveDetailsSection({
               className={cn(
                 "w-full justify-start text-left font-normal p-4 transition-all duration-200",
                 moveDetails.moveSize === option.value 
-                  ? "bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-md translate-y-[-1px]"
+                  ? "bg-blue-500 text-white hover:bg-blue-600 hover:text-white shadow-md src/app/(auth)/page.tsxtranslate-y-[-1px]"
                   : "hover:bg-blue-50 hover:text-blue-600 border-2 border-gray-100 hover:border-blue-100 hover:shadow-sm"
               )}
               onClick={() => onMoveDetailsChange({ ...moveDetails, moveSize: option.value as MoveSize })}

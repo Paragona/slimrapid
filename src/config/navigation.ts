@@ -1,6 +1,5 @@
 import { 
   Home,
-  Map,
   Calculator,
   HelpCircle,
   Star,
@@ -18,9 +17,7 @@ import { NavigationLink, FooterConfig } from "@/types"
 
 export const mainNavLinks: NavigationLink[] = [
   { href: "/", icon: Home, label: "Home" },
-  { href: "/map", icon: Map, label: "Destinations" },
   { href: "/how-it-works", icon: HelpCircle, label: "How It Works" },
-  { href: "/features", icon: Star, label: "Features" },
   { href: "/calculator", icon: Calculator, label: "Calculator" },
 ]
 

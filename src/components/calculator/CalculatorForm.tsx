@@ -4,12 +4,33 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MapPin, Truck, Building, Info, DollarSign } from 'lucide-react';
+import { MapPin, Truck, Building, Info, DollarSign, Home, Building2, Warehouse, Clock, FileCheck, ArrowUpDown, ShieldAlert } from 'lucide-react';
 import { Tooltip } from "@/components/ui/tooltip";
 import { AddressInput } from "@/components/ui/address-input";
 import { MoveDetailsSection } from './MoveDetailsSection';
 
-import { MoveDetails, AddressSuggestions } from '@/types/calculator';
+import { MoveDetails, AddressSuggestions, BuildingType, ParkingAccess, AccessRestrictions } from '@/types/calculator';
+import { cn } from "@/lib/utils";
+
+const buildingTypes: { value: BuildingType; label: string; icon: React.ReactElement }[] = [
+  { value: 'house', label: 'House', icon: <Home className="w-5 h-5" /> },
+  { value: 'apartment', label: 'Apartment', icon: <Building2 className="w-5 h-5" /> },
+  { value: 'office', label: 'Office Building', icon: <Building className="w-5 h-5" /> },
+  { value: 'storage', label: 'Storage Unit', icon: <Warehouse className="w-5 h-5" /> },
+];
+
+const parkingOptions: { value: ParkingAccess; label: string }[] = [
+  { value: 'close', label: 'Close (0-30 feet)' },
+  { value: 'medium', label: 'Medium (30-100 feet)' },
+  { value: 'far', label: 'Far (100+ feet)' },
+];
+
+const defaultRestrictions: AccessRestrictions = {
+  hasTimeRestrictions: false,
+  requiresPermits: false,
+  requiresElevatorBooking: false,
+  requiresCOI: false,
+};
 
 interface CalculatorFormProps {
   moveDetails: MoveDetails;
@@ -37,6 +58,11 @@ export function CalculatorForm({
   addressSuggestions,
 }: CalculatorFormProps) {
   const [expandedSection, setExpandedSection] = useState<'basic' | 'move' | 'origin' | 'destination' | null>('basic');
+
+  // Helper function to ensure restrictions are initialized
+  const getRestrictions = (restrictions?: AccessRestrictions) => {
+    return restrictions || { ...defaultRestrictions };
+  };
 
   return (
     <div className="grid gap-6 relative">
@@ -127,67 +153,229 @@ export function CalculatorForm({
         
         {expandedSection === 'origin' && (
           <div className="mt-4 grid gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label>Floor Number</Label>
-                <Tooltip text="Enter the floor number (additional charges apply for higher floors without elevator)">
-                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
-                </Tooltip>
-              </div>
-              <Input
-                type="number"
-                placeholder="Floor number"
-                value={moveDetails.origin.floorNumber}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  origin: {
-                    ...moveDetails.origin,
-                    floorNumber: parseInt(e.target.value)
-                  }
-                })}
-                min="0"
-                className="pl-8"
-              />
+            {/* Building Type */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {buildingTypes.map((type) => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => onMoveDetailsChange({
+                    ...moveDetails,
+                    origin: {
+                      ...moveDetails.origin,
+                      buildingType: type.value,
+                      restrictions: getRestrictions(moveDetails.origin.restrictions)
+                    }
+                  })}
+                  className={cn(
+                    "flex items-center gap-3 p-4 rounded-lg border-2 transition-all",
+                    moveDetails.origin.buildingType === type.value
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-blue-200 hover:bg-blue-50"
+                  )}
+                >
+                  {type.icon}
+                  <span className="font-medium">{type.label}</span>
+                </button>
+              ))}
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={moveDetails.origin.hasElevator}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  origin: {
-                    ...moveDetails.origin,
-                    hasElevator: e.target.checked
-                  }
-                })}
-                className="rounded"
-              />
-              <span>Has Elevator</span>
-              <Tooltip text="Check if the building has a working elevator">
-                <Info className="w-4 h-4 text-gray-400 cursor-help" />
-              </Tooltip>
-            </label>
-            <div className="space-y-2">
+
+            {/* Floor & Elevator */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label>Floor Number</Label>
+                  <Tooltip text="Enter the floor number (additional charges apply for higher floors without elevator)">
+                    <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  </Tooltip>
+                </div>
+                <Input
+                  type="number"
+                  placeholder="Floor number"
+                  value={moveDetails.origin.floorNumber}
+                  onChange={(e) => onMoveDetailsChange({
+                    ...moveDetails,
+                    origin: {
+                      ...moveDetails.origin,
+                      floorNumber: parseInt(e.target.value)
+                    }
+                  })}
+                  min="0"
+                  className="pl-4"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Has Elevator
+                  <Tooltip text="Check if the building has a working elevator">
+                    <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  </Tooltip>
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => onMoveDetailsChange({
+                    ...moveDetails,
+                    origin: {
+                      ...moveDetails.origin,
+                      hasElevator: !moveDetails.origin.hasElevator
+                    }
+                  })}
+                  className={cn(
+                    "w-full p-2 rounded-lg border-2 flex items-center justify-center gap-2 transition-all",
+                    moveDetails.origin.hasElevator
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 text-gray-500 hover:border-green-200 hover:bg-green-50"
+                  )}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span>{moveDetails.origin.hasElevator ? "Yes" : "No"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Parking Access */}
+            <div className="space-y-2 mb-6">
               <div className="flex items-center gap-2">
-                <Label>Parking Distance</Label>
-                <Tooltip text="Distance in feet from parking to entrance">
+                <Label>Parking Access</Label>
+                <Tooltip text="Select the approximate distance from parking to entrance">
                   <Info className="w-4 h-4 text-gray-400 cursor-help" />
                 </Tooltip>
               </div>
-              <Input
-                type="number"
-                placeholder="Distance in feet"
-                value={moveDetails.origin.parkingDistance}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  origin: {
-                    ...moveDetails.origin,
-                    parkingDistance: parseInt(e.target.value)
-                  }
-                })}
-                min="0"
-                className="pl-8"
-              />
+              <div className="grid grid-cols-3 gap-2">
+                {parkingOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onMoveDetailsChange({
+                      ...moveDetails,
+                      origin: {
+                        ...moveDetails.origin,
+                        parkingAccess: option.value
+                      }
+                    })}
+                    className={cn(
+                      "p-2 rounded-lg border-2 text-sm transition-all",
+                      moveDetails.origin.parkingAccess === option.value
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-gray-200 hover:border-blue-200 hover:bg-blue-50"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Access Restrictions */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Label>Access Restrictions</Label>
+                <Tooltip text="Select any access restrictions that apply">
+                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                </Tooltip>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.origin.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      origin: {
+                        ...moveDetails.origin,
+                        restrictions: {
+                          ...restrictions,
+                          hasTimeRestrictions: !restrictions.hasTimeRestrictions
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.origin.restrictions?.hasTimeRestrictions
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm">Time Restrictions</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.origin.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      origin: {
+                        ...moveDetails.origin,
+                        restrictions: {
+                          ...restrictions,
+                          requiresPermits: !restrictions.requiresPermits
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.origin.restrictions?.requiresPermits
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <FileCheck className="w-4 h-4" />
+                  <span className="text-sm">Permits Required</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.origin.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      origin: {
+                        ...moveDetails.origin,
+                        restrictions: {
+                          ...restrictions,
+                          requiresElevatorBooking: !restrictions.requiresElevatorBooking
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.origin.restrictions?.requiresElevatorBooking
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span className="text-sm">Elevator Booking</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.origin.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      origin: {
+                        ...moveDetails.origin,
+                        restrictions: {
+                          ...restrictions,
+                          requiresCOI: !restrictions.requiresCOI
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.origin.restrictions?.requiresCOI
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span className="text-sm">COI Required</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -211,67 +399,229 @@ export function CalculatorForm({
         
         {expandedSection === 'destination' && (
           <div className="mt-4 grid gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label>Floor Number</Label>
-                <Tooltip text="Enter the floor number (additional charges apply for higher floors without elevator)">
-                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
-                </Tooltip>
-              </div>
-              <Input
-                type="number"
-                placeholder="Floor number"
-                value={moveDetails.destination.floorNumber}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  destination: {
-                    ...moveDetails.destination,
-                    floorNumber: parseInt(e.target.value)
-                  }
-                })}
-                min="0"
-                className="pl-8"
-              />
+            {/* Building Type */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {buildingTypes.map((type) => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => onMoveDetailsChange({
+                    ...moveDetails,
+                    destination: {
+                      ...moveDetails.destination,
+                      buildingType: type.value,
+                      restrictions: getRestrictions(moveDetails.destination.restrictions)
+                    }
+                  })}
+                  className={cn(
+                    "flex items-center gap-3 p-4 rounded-lg border-2 transition-all",
+                    moveDetails.destination.buildingType === type.value
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-blue-200 hover:bg-blue-50"
+                  )}
+                >
+                  {type.icon}
+                  <span className="font-medium">{type.label}</span>
+                </button>
+              ))}
             </div>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={moveDetails.destination.hasElevator}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  destination: {
-                    ...moveDetails.destination,
-                    hasElevator: e.target.checked
-                  }
-                })}
-                className="rounded"
-              />
-              <span>Has Elevator</span>
-              <Tooltip text="Check if the building has a working elevator">
-                <Info className="w-4 h-4 text-gray-400 cursor-help" />
-              </Tooltip>
-            </label>
-            <div className="space-y-2">
+
+            {/* Floor & Elevator */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label>Floor Number</Label>
+                  <Tooltip text="Enter the floor number (additional charges apply for higher floors without elevator)">
+                    <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  </Tooltip>
+                </div>
+                <Input
+                  type="number"
+                  placeholder="Floor number"
+                  value={moveDetails.destination.floorNumber}
+                  onChange={(e) => onMoveDetailsChange({
+                    ...moveDetails,
+                    destination: {
+                      ...moveDetails.destination,
+                      floorNumber: parseInt(e.target.value)
+                    }
+                  })}
+                  min="0"
+                  className="pl-4"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  Has Elevator
+                  <Tooltip text="Check if the building has a working elevator">
+                    <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                  </Tooltip>
+                </Label>
+                <button
+                  type="button"
+                  onClick={() => onMoveDetailsChange({
+                    ...moveDetails,
+                    destination: {
+                      ...moveDetails.destination,
+                      hasElevator: !moveDetails.destination.hasElevator
+                    }
+                  })}
+                  className={cn(
+                    "w-full p-2 rounded-lg border-2 flex items-center justify-center gap-2 transition-all",
+                    moveDetails.destination.hasElevator
+                      ? "border-green-500 bg-green-50 text-green-700"
+                      : "border-gray-200 text-gray-500 hover:border-green-200 hover:bg-green-50"
+                  )}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span>{moveDetails.destination.hasElevator ? "Yes" : "No"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Parking Access */}
+            <div className="space-y-2 mb-6">
               <div className="flex items-center gap-2">
-                <Label>Parking Distance</Label>
-                <Tooltip text="Distance in feet from parking to entrance">
+                <Label>Parking Access</Label>
+                <Tooltip text="Select the approximate distance from parking to entrance">
                   <Info className="w-4 h-4 text-gray-400 cursor-help" />
                 </Tooltip>
               </div>
-              <Input
-                type="number"
-                placeholder="Distance in feet"
-                value={moveDetails.destination.parkingDistance}
-                onChange={(e) => onMoveDetailsChange({
-                  ...moveDetails,
-                  destination: {
-                    ...moveDetails.destination,
-                    parkingDistance: parseInt(e.target.value)
-                  }
-                })}
-                min="0"
-                className="pl-8"
-              />
+              <div className="grid grid-cols-3 gap-2">
+                {parkingOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => onMoveDetailsChange({
+                      ...moveDetails,
+                      destination: {
+                        ...moveDetails.destination,
+                        parkingAccess: option.value
+                      }
+                    })}
+                    className={cn(
+                      "p-2 rounded-lg border-2 text-sm transition-all",
+                      moveDetails.destination.parkingAccess === option.value
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-gray-200 hover:border-blue-200 hover:bg-blue-50"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Access Restrictions */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Label>Access Restrictions</Label>
+                <Tooltip text="Select any access restrictions that apply">
+                  <Info className="w-4 h-4 text-gray-400 cursor-help" />
+                </Tooltip>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.destination.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      destination: {
+                        ...moveDetails.destination,
+                        restrictions: {
+                          ...restrictions,
+                          hasTimeRestrictions: !restrictions.hasTimeRestrictions
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.destination.restrictions?.hasTimeRestrictions
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm">Time Restrictions</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.destination.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      destination: {
+                        ...moveDetails.destination,
+                        restrictions: {
+                          ...restrictions,
+                          requiresPermits: !restrictions.requiresPermits
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.destination.restrictions?.requiresPermits
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <FileCheck className="w-4 h-4" />
+                  <span className="text-sm">Permits Required</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.destination.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      destination: {
+                        ...moveDetails.destination,
+                        restrictions: {
+                          ...restrictions,
+                          requiresElevatorBooking: !restrictions.requiresElevatorBooking
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.destination.restrictions?.requiresElevatorBooking
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <ArrowUpDown className="w-4 h-4" />
+                  <span className="text-sm">Elevator Booking</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const restrictions = getRestrictions(moveDetails.destination.restrictions);
+                    onMoveDetailsChange({
+                      ...moveDetails,
+                      destination: {
+                        ...moveDetails.destination,
+                        restrictions: {
+                          ...restrictions,
+                          requiresCOI: !restrictions.requiresCOI
+                        }
+                      }
+                    });
+                  }}
+                  className={cn(
+                    "flex items-center gap-2 p-3 rounded-lg border-2 transition-all",
+                    moveDetails.destination.restrictions?.requiresCOI
+                      ? "border-yellow-500 bg-yellow-50 text-yellow-700"
+                      : "border-gray-200 hover:border-yellow-200 hover:bg-yellow-50"
+                  )}
+                >
+                  <ShieldAlert className="w-4 h-4" />
+                  <span className="text-sm">COI Required</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

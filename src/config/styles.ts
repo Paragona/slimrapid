@@ -6,15 +6,15 @@ export const styles: StyleConfig = {
     link: {
       base: "text-muted-foreground hover:text-foreground transition-colors",
       active: "text-foreground",
-      sidebar: "p-1 md:p-2 rounded hover:bg-muted",
+      sidebar: "p-2 md:p-3 rounded hover:bg-muted"
     },
     icon: {
       base: "h-5 w-5",
       logo: "h-6 w-6 text-primary"
     },
     container: {
-      base: "-space-y-1 md:space-y-1 px-0.5 md:px-2",
-      settings: "mt-1 md:mt-8 -space-y-1 md:space-y-1 px-0.5 md:px-2"
+      base: "-space-y-1 md:space-y-1 px-0.5 md:px-4",
+      settings: "mt-1 md:mt-8 -space-y-1 md:space-y-1 px-0.5 md:px-4"
     }
   },
   text: {
