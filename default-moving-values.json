@@ -1,0 +1,140 @@
+{
+  "defaultValues": {
+    "propertyTypes": {
+      "studio": {
+        "name": "Studio",
+        "baseCost": 400,
+        "hourlyRate": 150,
+        "crewSize": 2,
+        "estimatedHours": 3,
+        "description": "Perfect for a studio apartment"
+      },
+      "oneBedroom": {
+        "name": "1 Bedroom",
+        "baseCost": 600,
+        "hourlyRate": 170,
+        "crewSize": 2,
+        "estimatedHours": 4,
+        "description": "Suitable for a 1 bedroom apartment"
+      },
+      "twoBedroom": {
+        "name": "2 Bedrooms",
+        "baseCost": 800,
+        "hourlyRate": 190,
+        "crewSize": 3,
+        "estimatedHours": 5,
+        "description": "Ideal for a 2 bedroom home"
+      },
+      "threeBedroom": {
+        "name": "3 Bedrooms",
+        "baseCost": 1200,
+        "hourlyRate": 210,
+        "crewSize": 3,
+        "estimatedHours": 6,
+        "description": "Great for a 3 bedroom house"
+      },
+      "fourPlusBedroom": {
+        "name": "4+ Bedrooms",
+        "baseCost": 1600,
+        "hourlyRate": 230,
+        "crewSize": 4,
+        "estimatedHours": 8,
+        "description": "Best for large homes"
+      }
+    },
+    "buildingTypes": {
+      "house": {
+        "name": "House",
+        "multiplier": 1.0
+      },
+      "apartment": {
+        "name": "Apartment",
+        "multiplier": 1.1
+      },
+      "officeBuilding": {
+        "name": "Office Building",
+        "multiplier": 1.2
+      },
+      "storageUnit": {
+        "name": "Storage Unit",
+        "multiplier": 0.9
+      }
+    },
+    "accessFees": {
+      "elevator": {
+        "noElevator": 150,
+        "elevatorBooking": 75
+      },
+      "parking": {
+        "close": {
+          "range": "0-30 feet",
+          "fee": 0
+        },
+        "medium": {
+          "range": "30-100 feet",
+          "fee": 75
+        },
+        "far": {
+          "range": "100+ feet",
+          "fee": 150
+        }
+      },
+      "stairs": {
+        "perFloor": 50,
+        "minimumFee": 75
+      }
+    },
+    "restrictions": {
+      "timeRestrictions": {
+        "fee": 100,
+        "description": "Additional fee for restricted time windows"
+      },
+      "permitsRequired": {
+        "fee": 75,
+        "description": "Fee for handling required permits"
+      },
+      "coiRequired": {
+        "fee": 50,
+        "description": "Certificate of Insurance fee"
+      }
+    },
+    "additionalServices": {
+      "packing": {
+        "full": {
+          "base": 300,
+          "perRoom": 100
+        },
+        "partial": {
+          "base": 150,
+          "perRoom": 50
+        }
+      },
+      "storage": {
+        "daily": 30,
+        "weekly": 150,
+        "monthly": 500
+      }
+    },
+    "timing": {
+      "weekend": {
+        "multiplier": 1.2
+      },
+      "holiday": {
+        "multiplier": 1.3
+      },
+      "rush": {
+        "multiplier": 1.5
+      }
+    },
+    "distance": {
+      "local": {
+        "base": 100,
+        "perMile": 2
+      },
+      "longDistance": {
+        "base": 500,
+        "perMile": 3.5
+      }
+    }
+  }
+}
